@@ -49,10 +49,10 @@ class _NoteCardState extends State<NoteCard>
       child: Container(
         margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          color: widget.note.color.withOpacity(0.3),
+          color: widget.note.color.withOpacity(0.2),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: widget.note.color.withOpacity(0.5),
+            color: widget.note.color.withOpacity(0.3),
             width: 2,
           ),
           boxShadow: [
