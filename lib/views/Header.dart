@@ -20,7 +20,7 @@ class Header extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 25,
                   fontWeight: FontWeight.bold,
-                  color: Colors.grey[900],
+                  color: const Color.fromARGB(255, 255, 255, 255),
                 ),
               ),
               Text(

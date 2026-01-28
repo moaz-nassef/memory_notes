@@ -5,6 +5,7 @@
 import 'package:flutter/material.dart';
 import 'package:memory_notes/models/Note%20Model.dart';
 import 'package:memory_notes/views/Header.dart';
+import 'package:memory_notes/views/add_note_screen.dart';
 import 'package:memory_notes/views/note_card.dart';
 
 class NotesListScreen extends StatefulWidget {
@@ -58,6 +59,11 @@ class _NotesListScreenState extends State<NotesListScreen> {
       color: Color(0xFFF48FB1),
     ),
   ];
+  void _addNewNote(NoteModel newNote) {
+    setState(() {
+      notes.insert(0, newNote);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -68,7 +74,7 @@ class _NotesListScreenState extends State<NotesListScreen> {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              Color.fromARGB(198, 155, 165, 179),
+              Color.fromARGB(197, 45, 48, 53),
               Color.fromARGB(209, 175, 182, 221),
             ],
           ),
@@ -112,8 +118,15 @@ class _NotesListScreenState extends State<NotesListScreen> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // TODO: Add new note
+        onPressed: () async {
+          final newNote = await Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => AddNoteScreen()),
+          );
+
+          if (newNote != null) {
+            _addNewNote(newNote);
+          }
         },
         backgroundColor: Colors.deepPurple,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:memory_notes/models/Note%20Model.dart';
 import 'package:memory_notes/views/Audio%20Player%20Widget.dart';
+import 'package:memory_notes/views/widget%20image.dart';
 
 class NoteCard extends StatefulWidget {
   final NoteModel note;
@@ -49,21 +50,21 @@ class _NoteCardState extends State<NoteCard>
       child: Container(
         margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          color: widget.note.color.withOpacity(0.2),
+          color: widget.note.color.withOpacity(.8),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: widget.note.color.withOpacity(0.3),
+            color: widget.note.color.withOpacity(0.5),
             width: 2,
           ),
           boxShadow: [
             BoxShadow(
-              color: widget.note.color.withOpacity(0.3),
-              blurRadius: 15,
-              offset: Offset(0, 8),
+              color: widget.note.color.withOpacity(0.5),
+              blurRadius: 20,
+              offset: Offset(0, 10),
               spreadRadius: 2,
             ),
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withOpacity(0.1),
               blurRadius: 10,
               offset: Offset(0, 4),
             ),
@@ -103,54 +104,7 @@ class _NoteCardState extends State<NoteCard>
 
                   // ✅ Image (if exists)
                   if (widget.note.imagePath != null)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(16),
-                        child: Container(
-                          height: 180,
-                          width: double.infinity,
-                          decoration: BoxDecoration(color: Colors.grey[200]),
-                          child: Image.network(
-                            widget.note.imagePath!,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) {
-                              return Center(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(
-                                      Icons.image_outlined,
-                                      size: 50,
-                                      color: Colors.grey[400],
-                                    ),
-                                    SizedBox(height: 8),
-                                    Text(
-                                      'صورة',
-                                      style: TextStyle(color: Colors.grey[600]),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            },
-                            loadingBuilder: (context, child, loadingProgress) {
-                              if (loadingProgress == null) return child;
-                              return Center(
-                                child: CircularProgressIndicator(
-                                  value:
-                                      loadingProgress.expectedTotalBytes != null
-                                          ? loadingProgress
-                                                  .cumulativeBytesLoaded /
-                                              loadingProgress
-                                                  .expectedTotalBytes!
-                                          : null,
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-                      ),
-                    ),
+                    customImage(note: widget.note),
 
                   // ✅ Text (if exists)
                   if (widget.note.text != null && widget.note.text!.isNotEmpty)
@@ -163,7 +117,7 @@ class _NoteCardState extends State<NoteCard>
                           height: 1.5,
                           color: Colors.grey[800],
                         ),
-                        maxLines: 5,
+                        maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
