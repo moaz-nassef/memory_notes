@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:memory_notes/models/Note%20Model.dart';
+import 'package:memory_notes/views/build_Floating_Button.dart';
 import 'dart:ui';
 
 import 'package:memory_notes/views/top_Bar_AddNote.dart';
@@ -24,6 +25,11 @@ class _AddNoteScreenState extends State<AddNoteScreen>
 
   late AnimationController _fabController;
   late AnimationController _sheetController;
+
+  bool isRecording = false;
+  bool showVoiceOverlay = false;
+
+  Offset dragOffset = Offset.zero;
 
   final List<Map<String, dynamic>> noteColors = [
     {'color': Color(0xFF667EEA), 'name': 'بنفسجي'},
@@ -153,9 +159,11 @@ class _AddNoteScreenState extends State<AddNoteScreen>
                           style: TextStyle(
                             fontSize: 28,
                             fontWeight: FontWeight.bold,
-                            color: selectedColor,
+                            // color: selectedColor.withOpacity(0.5),
                           ),
                           decoration: InputDecoration(
+                            fillColor: Colors.white.withOpacity(0.009),
+                            filled: true,
                             hintText: '✨ title...',
                             hintStyle: TextStyle(
                               color: Colors.grey[400],
@@ -256,8 +264,8 @@ class _AddNoteScreenState extends State<AddNoteScreen>
                             decoration: BoxDecoration(
                               gradient: LinearGradient(
                                 colors: [
-                                  Colors.purple.withOpacity(0.15),
                                   Colors.purple.withOpacity(0.05),
+                                  Colors.purple.withOpacity(0.15),
                                 ],
                               ),
                               borderRadius: BorderRadius.circular(20),
@@ -271,9 +279,27 @@ class _AddNoteScreenState extends State<AddNoteScreen>
                                 Container(
                                   padding: EdgeInsets.all(12),
                                   decoration: BoxDecoration(
-                                    color: Colors.purple,
+                                    gradient: LinearGradient(
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                      colors: [
+                                        Colors.purple.withOpacity(0.5),
+                                        Colors.purple.withOpacity(1),
+
+                                        Colors.purple.withOpacity(0.5),
+                                      ],
+                                    ),
                                     shape: BoxShape.circle,
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.purple.withOpacity(0.4),
+                                        blurRadius: 20,
+                                        offset: Offset(0, 10),
+                                        spreadRadius: 1,
+                                      ),
+                                    ],
                                   ),
+
                                   child: Icon(
                                     Icons.mic_rounded,
                                     color: Colors.white,
@@ -330,7 +356,7 @@ class _AddNoteScreenState extends State<AddNoteScreen>
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 // Color Picker FAB
-                _buildFloatingButton(
+                FloatingButton(
                   icon: Icons.palette_rounded,
                   color: selectedColor,
                   onTap: () {
@@ -341,7 +367,7 @@ class _AddNoteScreenState extends State<AddNoteScreen>
                 SizedBox(height: 12),
 
                 // Image Picker FAB
-                _buildFloatingButton(
+                FloatingButton(
                   icon: Icons.image_rounded,
                   color: Colors.blue,
                   onTap: () {
@@ -352,9 +378,20 @@ class _AddNoteScreenState extends State<AddNoteScreen>
                 SizedBox(height: 12),
 
                 // Audio FAB
-                _buildFloatingButton(
-                  icon: hasAudio ? Icons.mic : Icons.mic_none_rounded,
-                  color: Colors.purple,
+                // FloatingButton(
+                //   icon: hasAudio ? Icons.mic : Icons.mic_none_rounded,
+                //   color: Colors.purple,
+                //   onTap: () {
+                //     setState(() => hasAudio = !hasAudio);
+                //     _showSnackBar(
+                //       hasAudio ? 'تم إضافة صوت 🎤' : 'تم إزالة الصوت',
+                //       Colors.purple,
+                //     );
+
+                //   },
+                // ),
+                // 🎤 Audio FAB
+                GestureDetector(
                   onTap: () {
                     setState(() => hasAudio = !hasAudio);
                     _showSnackBar(
@@ -362,6 +399,43 @@ class _AddNoteScreenState extends State<AddNoteScreen>
                       Colors.purple,
                     );
                   },
+
+                  onLongPressStart: (_) {
+                    setState(() {
+                      isRecording = true;
+                      showVoiceOverlay = true;
+                    });
+                  },
+
+                  onLongPressMoveUpdate: (details) {
+                    setState(() {
+                      dragOffset = details.offsetFromOrigin;
+                    });
+                  },
+
+                  onLongPressEnd: (_) {
+                    if (dragOffset.dx < -100) {
+                      print('Recording canceled');
+                    } else if (dragOffset.dy < -100) {
+                      print('Recording sent');
+                    }
+
+                    setState(() {
+                      isRecording = false;
+                      showVoiceOverlay = false;
+                      dragOffset = Offset.zero;
+                    });
+                  },
+
+                  child: AnimatedScale(
+                    scale: isRecording ? 1.4 : 1.0,
+                    duration: Duration(milliseconds: 200),
+                    child: FloatingButton(
+                      icon: hasAudio ? Icons.mic : Icons.mic_none_rounded,
+                      color: Colors.purple,
+                      onTap: () {}, // فاضي
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -374,33 +448,73 @@ class _AddNoteScreenState extends State<AddNoteScreen>
           // ✅ Image Picker Bottom Sheet
           if (showImagePicker)
             Positioned(bottom: 0, left: 0, right: 0, child: _buildImageSheet()),
+
+          if (showVoiceOverlay) Positioned.fill(child: _buildVoiceOverlay()),
         ],
       ),
     );
   }
 
-  Widget _buildFloatingButton({
-    required IconData icon,
-    required Color color,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 60,
-        height: 60,
-        decoration: BoxDecoration(
-          gradient: LinearGradient(colors: [color, color.withOpacity(0.8)]),
-          shape: BoxShape.circle,
-          boxShadow: [
-            BoxShadow(
-              color: color.withOpacity(0.5),
-              blurRadius: 20,
-              offset: Offset(0, 10),
+  Widget _buildVoiceOverlay() {
+    return Container(
+      color: Colors.black.withOpacity(0.2),
+      child: Stack(
+        children: [
+          // ❌ حذف (أفقي)
+          Positioned(
+            right: 30,
+            bottom: 20,
+            child: Container(
+              width: 180,
+              height: 50,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    const Color.fromARGB(179, 244, 67, 54),
+                    Colors.transparent,
+                  ],
+                ),
+                borderRadius: BorderRadius.circular(25),
+              ),
+              child: Row(
+                children: [
+                  SizedBox(width: 12),
+                  Icon(Icons.delete, color: Colors.white),
+                  SizedBox(width: 8),
+                ],
+              ),
             ),
-          ],
-        ),
-        child: Icon(icon, color: Colors.white, size: 28),
+          ),
+
+          // ✅ إرسال (رأسي)
+          Positioned(
+            right: 30,
+            bottom: 50,
+            child: Container(
+              width: 60,
+              height: 180,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [Colors.green, Colors.transparent],
+                ),
+                borderRadius: BorderRadius.circular(30),
+              ),
+              child: Column(
+                children: [
+                  SizedBox(height: 20),
+                  Icon(
+                    Icons.keyboard_double_arrow_up_sharp,
+                    color: Colors.white,
+                    size: 28,
+                  ),
+                  SizedBox(height: 12),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
