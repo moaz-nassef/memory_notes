@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:memory_notes/models/Note%20Model.dart';
+import 'package:memory_notes/models/Note_Model.dart';
 import 'package:memory_notes/views/NoteItem.dart';
 
 import 'custom_app_bar.dart';

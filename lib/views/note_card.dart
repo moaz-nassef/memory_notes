@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:io';
-import 'package:memory_notes/models/Note%20Model.dart';
+import 'package:memory_notes/models/Note_Model.dart';
 import 'package:memory_notes/views/Audio%20Player%20Widget.dart';
 import 'package:memory_notes/views/widget%20image.dart';
 

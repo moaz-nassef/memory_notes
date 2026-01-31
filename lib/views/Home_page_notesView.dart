@@ -3,7 +3,7 @@
 // ============================================
 
 import 'package:flutter/material.dart';
-import 'package:memory_notes/models/Note%20Model.dart';
+import 'package:memory_notes/models/Note_Model.dart';
 import 'package:memory_notes/views/Header.dart';
 import 'package:memory_notes/views/add_note_screen.dart';
 import 'package:memory_notes/views/note_card.dart';

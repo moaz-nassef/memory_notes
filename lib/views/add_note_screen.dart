@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:memory_notes/models/Note%20Model.dart';
+import 'package:memory_notes/models/Note_Model.dart';
+import 'package:memory_notes/views/buildVoiceOverlay.dart';
 import 'package:memory_notes/views/build_Floating_Button.dart';
 import 'dart:ui';
 
@@ -31,6 +32,9 @@ class _AddNoteScreenState extends State<AddNoteScreen>
 
   Offset dragOffset = Offset.zero;
 
+  late AnimationController _pulseController;
+  int recordingSeconds = 0;
+
   final List<Map<String, dynamic>> noteColors = [
     {'color': Color(0xFF667EEA), 'name': 'بنفسجي'},
     {'color': Color(0xFFFF6B6B), 'name': 'أحمر'},
@@ -61,10 +65,16 @@ class _AddNoteScreenState extends State<AddNoteScreen>
       vsync: this,
       duration: Duration(milliseconds: 400),
     );
+    // جديد
+    _pulseController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 800),
+    )..repeat(reverse: true);
   }
 
   @override
   void dispose() {
+    _pulseController.dispose(); // ✅ جديد
     _titleController.dispose();
     _textController.dispose();
     _fabController.dispose();
@@ -391,6 +401,8 @@ class _AddNoteScreenState extends State<AddNoteScreen>
                 //   },
                 // ),
                 // 🎤 Audio FAB
+
+                // ✅ تعديل الـ GestureDetector للمايك
                 GestureDetector(
                   onTap: () {
                     setState(() => hasAudio = !hasAudio);
@@ -399,25 +411,28 @@ class _AddNoteScreenState extends State<AddNoteScreen>
                       Colors.purple,
                     );
                   },
-
                   onLongPressStart: (_) {
                     setState(() {
                       isRecording = true;
                       showVoiceOverlay = true;
+                      recordingSeconds = 0;
                     });
                   },
-
                   onLongPressMoveUpdate: (details) {
                     setState(() {
                       dragOffset = details.offsetFromOrigin;
                     });
                   },
-
                   onLongPressEnd: (_) {
-                    if (dragOffset.dx < -100) {
-                      print('Recording canceled');
-                    } else if (dragOffset.dy < -100) {
-                      print('Recording sent');
+                    final isDelete = dragOffset.dx < -80;
+                    final isSend = dragOffset.dy < -80;
+
+                    if (isDelete) {
+                      _showSnackBar('تم حذف التسجيل 🗑️', Colors.red);
+                      setState(() => hasAudio = false);
+                    } else if (isSend) {
+                      _showSnackBar('تم إرسال التسجيل ✅', Colors.green);
+                      setState(() => hasAudio = true);
                     }
 
                     setState(() {
@@ -428,19 +443,49 @@ class _AddNoteScreenState extends State<AddNoteScreen>
                   },
 
                   child: AnimatedScale(
-                    scale: isRecording ? 1.4 : 1.0,
+                    scale: isRecording ? 1.3 : 1.0,
                     duration: Duration(milliseconds: 200),
-                    child: FloatingButton(
-                      icon: hasAudio ? Icons.mic : Icons.mic_none_rounded,
-                      color: Colors.purple,
-                      onTap: () {}, // فاضي
+                    child: AnimatedBuilder(
+                      animation: _pulseController,
+                      builder: (context, child) {
+                        return Container(
+                          width: 60,
+                          height: 60,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [Colors.purple, Colors.deepPurple],
+                            ),
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.purple.withOpacity(
+                                  isRecording ? 0.6 : 0.5,
+                                ),
+                                blurRadius:
+                                    isRecording
+                                        ? 25 + (15 * _pulseController.value)
+                                        : 20,
+                                offset: Offset(0, 10),
+                                spreadRadius:
+                                    isRecording
+                                        ? 3 + (5 * _pulseController.value)
+                                        : 0,
+                              ),
+                            ],
+                          ),
+                          child: Icon(
+                            hasAudio ? Icons.mic : Icons.mic_none_rounded,
+                            color: Colors.white,
+                            size: 28,
+                          ),
+                        );
+                      },
                     ),
                   ),
                 ),
               ],
             ),
           ),
-
           // ✅ Color Picker Bottom Sheet
           if (showColorPicker)
             Positioned(bottom: 0, left: 0, right: 0, child: _buildColorSheet()),
@@ -449,75 +494,20 @@ class _AddNoteScreenState extends State<AddNoteScreen>
           if (showImagePicker)
             Positioned(bottom: 0, left: 0, right: 0, child: _buildImageSheet()),
 
-          if (showVoiceOverlay) Positioned.fill(child: _buildVoiceOverlay()),
+          if (showVoiceOverlay)
+            Positioned.fill(
+              child: buildVoiceOverlay(
+                dragOffset: dragOffset,
+                pulseController: _pulseController,
+                recordingSeconds: recordingSeconds,
+              ),
+            ),
         ],
       ),
     );
   }
 
-  Widget _buildVoiceOverlay() {
-    return Container(
-      color: Colors.black.withOpacity(0.2),
-      child: Stack(
-        children: [
-          // ❌ حذف (أفقي)
-          Positioned(
-            right: 30,
-            bottom: 20,
-            child: Container(
-              width: 180,
-              height: 50,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    const Color.fromARGB(179, 244, 67, 54),
-                    Colors.transparent,
-                  ],
-                ),
-                borderRadius: BorderRadius.circular(25),
-              ),
-              child: Row(
-                children: [
-                  SizedBox(width: 12),
-                  Icon(Icons.delete, color: Colors.white),
-                  SizedBox(width: 8),
-                ],
-              ),
-            ),
-          ),
-
-          // ✅ إرسال (رأسي)
-          Positioned(
-            right: 30,
-            bottom: 50,
-            child: Container(
-              width: 60,
-              height: 180,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [Colors.green, Colors.transparent],
-                ),
-                borderRadius: BorderRadius.circular(30),
-              ),
-              child: Column(
-                children: [
-                  SizedBox(height: 20),
-                  Icon(
-                    Icons.keyboard_double_arrow_up_sharp,
-                    color: Colors.white,
-                    size: 28,
-                  ),
-                  SizedBox(height: 12),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  // ✅ الـ Overlay المحسّن بالكامل
 
   Widget _buildColorSheet() {
     return GestureDetector(
