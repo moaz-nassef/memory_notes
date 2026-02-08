@@ -3,7 +3,9 @@
 // ============================================
 
 import 'package:flutter/material.dart';
-import 'package:memory_notes/models/Note_Model.dart';
+import 'package:hive/hive.dart';
+import 'package:hive_flutter/adapters.dart';
+import 'package:memory_notes/models/note_model.dart';
 import 'package:memory_notes/views/Header.dart';
 import 'package:memory_notes/views/add_note_screen.dart';
 import 'package:memory_notes/views/note_card.dart';
@@ -19,44 +21,40 @@ class _NotesListScreenState extends State<NotesListScreen> {
   // ✅ Sample Data
   List<NoteModel> notes = [
     NoteModel(
-      id: '1',
       title: 'رحلة إلى البحر',
       text:
           'يوم رائع على الشاطئ مع العائلة. الجو كان مثالي والمياه صافية جداً!',
       imagePath: 'assets/images/download (3).jpg',
       createdAt: DateTime.now().subtract(Duration(hours: 2)),
-      color: Color(0xFF81D4FA),
+      color: Color(0xFF81D4FA).value,
     ),
     NoteModel(
-      id: '2',
       title: 'قائمة التسوق',
       text: 'خبز\nحليب\nبيض\nجبنة\nخضروات\nفواكه',
       createdAt: DateTime.now().subtract(Duration(days: 1)),
-      color: Color(0xFFA5D6A7),
+      color: Color(0xFFA5D6A7).value,
     ),
     NoteModel(
-      id: '3',
       title: 'اجتماع العمل',
       audioPath: 'assets/audio/7447224752172845840.mp3',
       text: 'نقاط مهمة من الاجتماع اليوم',
       createdAt: DateTime.now().subtract(Duration(days: 2)),
-      color: Color(0xFFCE93D8),
+      color: Color(0xFFCE93D8).value,
     ),
     NoteModel(
-      id: '4',
+      title: 'shob online',
       imagePath: "assets/images/Screenshot 2026-01-02 025428.png",
       createdAt: DateTime.now().subtract(Duration(days: 3)),
-      color: Color(0xFFFFAB91),
+      color: Color(0xFFFFAB91).value,
     ),
     NoteModel(
-      id: '5',
       title: 'أفكار المشروع',
       text:
           'تطبيق ملاحظات مع دعم الصور والصوت والنص. يجب أن يكون التصميم بسيط وسهل الاستخدام.',
       imagePath: 'assets/images/WhatsApp Image 2026-01-06 at 8.20.51 PM.jpeg',
       audioPath: 'assets/audio/7498607310344866576.mp3',
       createdAt: DateTime.now().subtract(Duration(days: 5)),
-      color: Color(0xFFF48FB1),
+      color: Color(0xFFF48FB1).value,
     ),
   ];
   void _addNewNote(NoteModel newNote) {
@@ -64,6 +62,8 @@ class _NotesListScreenState extends State<NotesListScreen> {
       notes.insert(0, newNote);
     });
   }
+
+  final notesBox = Hive.box<NoteModel>('notesBox');
 
   @override
   Widget build(BuildContext context) {
@@ -86,27 +86,43 @@ class _NotesListScreenState extends State<NotesListScreen> {
 
               // ✅ Notes List
               Expanded(
-                child: ListView.builder(
-                  padding: EdgeInsets.only(bottom: 80),
-                  itemCount: notes.length,
-                  itemBuilder: (context, index) {
-                    return NoteCard(
-                      note: notes[index],
-                      onTap: () {
-                        // TODO: Navigate to detail screen
-                      },
-                      onLongPress: () {
-                        // TODO: Show options
-                      },
-                      onDelete: () {
-                        setState(() {
-                          notes.removeAt(index);
-                        });
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('Note deleted ✅'),
-                            behavior: SnackBarBehavior.floating,
-                          ),
+                child: ValueListenableBuilder(
+                  valueListenable: notesBox.listenable(),
+                  builder: (context, Box<NoteModel> box, _) {
+                    final notes = box.values.toList();
+
+                    return ListView.builder(
+                      padding: EdgeInsets.only(bottom: 80),
+                      itemCount: notes.length,
+                      itemBuilder: (context, index) {
+                        return NoteCard(
+                          note: notes[index],
+                          onDelete: () async {
+                            final confirm = await showDialog<bool>(
+                              context: context,
+                              builder:
+                                  (_) => AlertDialog(
+                                    title: Text('حذف الملاحظة؟'),
+                                    content: Text('هل أنت متأكد؟'),
+                                    actions: [
+                                      TextButton(
+                                        onPressed:
+                                            () => Navigator.pop(context, false),
+                                        child: Text('إلغاء'),
+                                      ),
+                                      ElevatedButton(
+                                        onPressed:
+                                            () => Navigator.pop(context, true),
+                                        child: Text('حذف'),
+                                      ),
+                                    ],
+                                  ),
+                            );
+
+                            if (confirm == true) {
+                              await notes[index].delete();
+                            }
+                          },
                         );
                       },
                     );

@@ -1,5 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
-import 'package:memory_notes/models/Note_Model.dart';
+import 'package:hive/hive.dart';
+import 'package:memory_notes/models/note_model.dart';
+import 'package:memory_notes/views/Image_Picker_Page.dart';
 import 'package:memory_notes/views/buildVoiceOverlay.dart';
 import 'package:memory_notes/views/build_Floating_Button.dart';
 import 'dart:ui';
@@ -32,8 +36,25 @@ class _AddNoteScreenState extends State<AddNoteScreen>
 
   Offset dragOffset = Offset.zero;
 
+  List<File> selectedImages = [];
+
   late AnimationController _pulseController;
   int recordingSeconds = 0;
+
+  bool canSaveNote({
+    required String title,
+    String? text,
+    String? imagePath,
+    String? audioPath,
+  }) {
+    if (title.trim().isEmpty) return false;
+
+    final hasText = text != null && text.trim().isNotEmpty;
+    final hasImage = imagePath != null;
+    final hasAudio = audioPath != null;
+
+    return hasText || hasImage || hasAudio;
+  }
 
   final List<Map<String, dynamic>> noteColors = [
     {'color': Color(0xFF667EEA), 'name': 'بنفسجي'},
@@ -43,15 +64,6 @@ class _AddNoteScreenState extends State<AddNoteScreen>
     {'color': Color(0xFF95E1D3), 'name': 'نعناع'},
     {'color': Color(0xFFEE5A6F), 'name': 'وردي'},
     {'color': Color(0xFF2ECC71), 'name': 'أخضر'},
-  ];
-
-  final List<String> sampleImages = [
-    'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600',
-    'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=600',
-    'https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?w=600',
-    'https://images.unsplash.com/photo-1501594907352-04cda38ebc29?w=600',
-    'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=600',
-    'https://images.unsplash.com/photo-1511576661531-b34d7da5d0bb?w=600',
   ];
 
   @override
@@ -83,25 +95,34 @@ class _AddNoteScreenState extends State<AddNoteScreen>
   }
 
   void _saveNote() {
-    if (_titleController.text.isEmpty &&
-        _textController.text.isEmpty &&
-        selectedImageUrl == null &&
-        !hasAudio) {
-      _showSnackBar('أضف محتوى للملاحظة أولاً! 📝', Colors.orange);
+    final isValid = canSaveNote(
+      title: _titleController.text,
+      text: _textController.text,
+      imagePath: selectedImageUrl,
+      audioPath: hasAudio ? 'path/to/audio.mp3' : null,
+    );
+
+    if (!isValid) {
+      _showSnackBar('لازم تكتب عنوان وتضيف نص أو صورة أو صوت', Colors.orange);
       return;
     }
 
-    final newNote = NoteModel(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
-      title: _titleController.text.isEmpty ? null : _titleController.text,
-      text: _textController.text.isEmpty ? null : _textController.text,
+    final note = NoteModel(
+      title: _titleController.text.trim(),
+      text:
+          _textController.text.trim().isEmpty
+              ? null
+              : _textController.text.trim(),
       imagePath: selectedImageUrl,
       audioPath: hasAudio ? 'path/to/audio.mp3' : null,
       createdAt: DateTime.now(),
-      color: selectedColor,
+      color: selectedColor.value, // 🔥 مهم
     );
 
-    Navigator.pop(context, newNote);
+    final box = Hive.box<NoteModel>('notesBox');
+    box.add(note);
+
+    Navigator.pop(context);
   }
 
   void _showSnackBar(String message, Color color) {
@@ -207,10 +228,16 @@ class _AddNoteScreenState extends State<AddNoteScreen>
                                   ),
                                   child: ClipRRect(
                                     borderRadius: BorderRadius.circular(25),
-                                    child: Image.network(
-                                      selectedImageUrl!,
-                                      fit: BoxFit.cover,
-                                    ),
+                                    child:
+                                        selectedImageUrl!.startsWith('http')
+                                            ? Image.network(
+                                              selectedImageUrl!,
+                                              fit: BoxFit.cover,
+                                            )
+                                            : Image.file(
+                                              File(selectedImageUrl!),
+                                              fit: BoxFit.cover,
+                                            ),
                                   ),
                                 ),
                                 Positioned(
@@ -488,11 +515,49 @@ class _AddNoteScreenState extends State<AddNoteScreen>
           ),
           // ✅ Color Picker Bottom Sheet
           if (showColorPicker)
-            Positioned(bottom: 0, left: 0, right: 0, child: _buildColorSheet()),
+            Positioned(bottom: 0, left: 0, right: 0, child: buildColorSheet()),
 
           // ✅ Image Picker Bottom Sheet
           if (showImagePicker)
-            Positioned(bottom: 0, left: 0, right: 0, child: _buildImageSheet()),
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: GestureDetector(
+                onTap: () async {
+                  final images = await Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => ImagePickerPage()),
+                  );
+                  if (images != null && images.isNotEmpty) {
+                    setState(() {
+                      // use the first selected image as the note image
+                      selectedImageUrl = images.first.path;
+                    });
+                  }
+                  setState(() => showImagePicker = false);
+                },
+                child: Container(
+                  margin: EdgeInsets.only(top: 100),
+                  height: 220,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(30),
+                    ),
+                  ),
+                  child: Center(
+                    child: Text(
+                      'اضغط لفتح اختيار الصور',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
 
           if (showVoiceOverlay)
             Positioned.fill(
@@ -509,7 +574,7 @@ class _AddNoteScreenState extends State<AddNoteScreen>
 
   // ✅ الـ Overlay المحسّن بالكامل
 
-  Widget _buildColorSheet() {
+  Widget buildColorSheet() {
     return GestureDetector(
       onTap: () => setState(() => showColorPicker = false),
       child: Container(
@@ -612,124 +677,6 @@ class _AddNoteScreenState extends State<AddNoteScreen>
                                   ),
                                 ),
                               ],
-                            ),
-                          );
-                        },
-                      ),
-                      SizedBox(height: 20),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildImageSheet() {
-    return GestureDetector(
-      onTap: () => setState(() => showImagePicker = false),
-      child: Container(
-        color: Colors.black.withOpacity(0.3),
-        child: GestureDetector(
-          onTap: () {},
-          child: Container(
-            margin: EdgeInsets.only(top: 100),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                SizedBox(height: 12),
-                Container(
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[300],
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(24.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        '🖼️ اختر صورة',
-                        style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      SizedBox(height: 20),
-                      GridView.builder(
-                        shrinkWrap: true,
-                        physics: NeverScrollableScrollPhysics(),
-                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 3,
-                          crossAxisSpacing: 12,
-                          mainAxisSpacing: 12,
-                        ),
-                        itemCount: sampleImages.length,
-                        itemBuilder: (context, index) {
-                          final isSelected =
-                              selectedImageUrl == sampleImages[index];
-
-                          return GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                selectedImageUrl = sampleImages[index];
-                                showImagePicker = false;
-                              });
-                            },
-                            child: Hero(
-                              tag: sampleImages[index],
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(16),
-                                  border:
-                                      isSelected
-                                          ? Border.all(
-                                            color: Colors.blue,
-                                            width: 3,
-                                          )
-                                          : null,
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(0.1),
-                                      blurRadius: 10,
-                                      offset: Offset(0, 4),
-                                    ),
-                                  ],
-                                ),
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(14),
-                                  child: Stack(
-                                    fit: StackFit.expand,
-                                    children: [
-                                      Image.network(
-                                        sampleImages[index],
-                                        fit: BoxFit.cover,
-                                      ),
-                                      if (isSelected)
-                                        Container(
-                                          color: Colors.blue.withOpacity(0.3),
-                                          child: Center(
-                                            child: Icon(
-                                              Icons.check_circle_rounded,
-                                              color: Colors.white,
-                                              size: 32,
-                                            ),
-                                          ),
-                                        ),
-                                    ],
-                                  ),
-                                ),
-                              ),
                             ),
                           );
                         },

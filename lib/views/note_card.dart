@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:io';
-import 'package:memory_notes/models/Note_Model.dart';
+import 'package:memory_notes/models/note_model.dart';
 import 'package:memory_notes/views/Audio%20Player%20Widget.dart';
 import 'package:memory_notes/views/widget%20image.dart';
 
@@ -50,15 +50,15 @@ class _NoteCardState extends State<NoteCard>
       child: Container(
         margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          color: widget.note.color.withOpacity(.8),
+          color: Color(widget.note.color).withOpacity(0.8),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: widget.note.color.withOpacity(0.5),
+            color: Color(widget.note.color).withOpacity(0.5),
             width: 2,
           ),
           boxShadow: [
             BoxShadow(
-              color: widget.note.color.withOpacity(0.5),
+              color: Color(widget.note.color).withOpacity(0.5),
               blurRadius: 20,
               offset: Offset(0, 10),
               spreadRadius: 2,
@@ -70,6 +70,7 @@ class _NoteCardState extends State<NoteCard>
             ),
           ],
         ),
+
         child: Stack(
           children: [
             // Main Content

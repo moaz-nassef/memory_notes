@@ -1,29 +1,50 @@
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
+
+part 'note_model.g.dart';
 
 enum NoteType { text, image, audio, mixed }
 
-class NoteModel {
-  final String id;
-  final String? title;
-  final String? text;
-  final String? imagePath;
-  final String? audioPath;
-  final DateTime createdAt;
-  final Color color;
+@HiveType(typeId: 0)
+class NoteModel extends HiveObject {
+  @HiveField(0)
+  String title;
+
+  @HiveField(1)
+  String? text;
+
+  @HiveField(2)
+  String? imagePath;
+
+  @HiveField(3)
+  String? audioPath;
+
+  @HiveField(4)
+  DateTime createdAt;
+
+  // نخزن اللون كـ int
+  @HiveField(5)
+  int color;
 
   NoteModel({
-    required this.id,
-    this.title,
+    required this.title,
     this.text,
     this.imagePath,
     this.audioPath,
     required this.createdAt,
-    this.color = const Color(0xFFFFE082),
+    required this.color,
   });
 
-  // ✅ Helper: تحديد نوع الـ Note
+  // هل في أي محتوى؟
+  bool get hasAnyContent {
+    return (text != null && text!.trim().isNotEmpty) ||
+        imagePath != null ||
+        audioPath != null;
+  }
+
+  // نوع النوت
   NoteType get type {
-    final hasText = text != null && text!.isNotEmpty;
+    final hasText = text != null && text!.trim().isNotEmpty;
     final hasImage = imagePath != null;
     final hasAudio = audioPath != null;
 
@@ -35,25 +56,19 @@ class NoteModel {
     return NoteType.text;
   }
 
-  // ✅ Helper: هل الـ Note فاضية؟
-  bool get isEmpty {
-    return (text == null || text!.isEmpty) &&
-        imagePath == null &&
-        audioPath == null;
-  }
+  // هل فاضية؟
+  bool get isEmpty => !hasAnyContent;
 
-  // ✅ Copy with for updates
+  // copyWith (مصحح)
   NoteModel copyWith({
-    String? id,
     String? title,
     String? text,
     String? imagePath,
     String? audioPath,
     DateTime? createdAt,
-    Color? color,
+    int? color,
   }) {
     return NoteModel(
-      id: id ?? this.id,
       title: title ?? this.title,
       text: text ?? this.text,
       imagePath: imagePath ?? this.imagePath,
