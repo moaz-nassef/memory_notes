@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:memory_notes/views/presentation/Home_page_notesView.dart';
+import 'package:memory_notes/views/home/Home_page_notesView.dart';
 import 'package:memory_notes/views/presentation/add_note/add_note_screen.dart';
 
 class AppRoutes {

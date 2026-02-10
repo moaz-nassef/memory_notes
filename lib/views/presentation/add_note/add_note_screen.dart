@@ -2,7 +2,7 @@ import 'dart:io';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:memory_notes/models/note_model.dart';
-import 'package:memory_notes/views/buildVoiceOverlay.dart';
+import 'package:memory_notes/views/presentation/common/audio/buildVoiceOverlay.dart';
 import 'package:memory_notes/views/presentation/common/build_Floating_Button.dart';
 import 'package:memory_notes/views/presentation/common/color/color_picker_sheet.dart';
 import 'package:memory_notes/views/presentation/common/audio/note_audio_badge.dart';
@@ -10,7 +10,7 @@ import 'package:memory_notes/views/presentation/common/image/Image_Picker_Page.d
 import 'package:memory_notes/views/presentation/common/image/note_image_preview.dart';
 import 'package:memory_notes/views/presentation/common/text/note_text_field.dart';
 import 'package:memory_notes/views/presentation/common/text/note_title_field.dart';
-import 'package:memory_notes/views/presentation/common/top_Bar_AddNote.dart';
+import 'package:memory_notes/views/presentation/add_note/top_Bar_AddNote.dart';
 
 class AddNoteScreen extends StatefulWidget {
   const AddNoteScreen({super.key});

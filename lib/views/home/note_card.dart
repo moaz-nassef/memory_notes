@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:memory_notes/models/note_model.dart';
-import 'package:memory_notes/views/Audio%20Player%20Widget.dart';
-import 'package:memory_notes/views/widget%20image.dart';
+import 'package:memory_notes/views/presentation/common/audio/Audio%20Player%20Widget.dart';
+import 'package:memory_notes/views/presentation/common/image/widget%20image.dart';
 
 class NoteCard extends StatefulWidget {
   final NoteModel note;
