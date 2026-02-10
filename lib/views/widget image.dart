@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:memory_notes/models/note_model.dart';
-import 'package:memory_notes/views/presentation/add_note/common/image/note_image_preview.dart';
+import 'package:memory_notes/views/presentation/common/image/note_image_preview.dart';
 
 class customImage extends StatelessWidget {
   const customImage({super.key, required this.note});
