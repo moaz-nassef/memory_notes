@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:memory_notes/models/note_model.dart';
 
 class Header extends StatelessWidget {
-  const Header({super.key, required this.notes});
+  const Header({super.key, required this.noteCount});
 
-  final List<NoteModel> notes;
+  final int noteCount;
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +23,7 @@ class Header extends StatelessWidget {
                 ),
               ),
               Text(
-                '${notes.length} notes',
+                '${noteCount} notes',
                 style: TextStyle(
                   fontSize: 16,
                   color: const Color.fromARGB(255, 255, 247, 247),

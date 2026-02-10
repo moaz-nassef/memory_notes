@@ -16,10 +16,21 @@ class NoteModelAdapter extends TypeAdapter<NoteModel> {
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
+
+    // Handle imagePaths - convert String to List<String> if needed
+    List<String>? imagePaths;
+    if (fields[2] != null) {
+      if (fields[2] is String) {
+        imagePaths = [fields[2] as String];
+      } else if (fields[2] is List) {
+        imagePaths = (fields[2] as List).cast<String>();
+      }
+    }
+
     return NoteModel(
       title: fields[0] as String,
       text: fields[1] as String?,
-      imagePath: fields[2] as String?,
+      imagePaths: imagePaths,
       audioPath: fields[3] as String?,
       createdAt: fields[4] as DateTime,
       color: fields[5] as int,
@@ -35,7 +46,7 @@ class NoteModelAdapter extends TypeAdapter<NoteModel> {
       ..writeByte(1)
       ..write(obj.text)
       ..writeByte(2)
-      ..write(obj.imagePath)
+      ..write(obj.imagePaths)
       ..writeByte(3)
       ..write(obj.audioPath)
       ..writeByte(4)

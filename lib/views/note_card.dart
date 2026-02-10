@@ -50,7 +50,8 @@ class _NoteCardState extends State<NoteCard>
       child: Container(
         margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          color: Color(widget.note.color).withOpacity(0.8),
+          // color: Color(widget.note.color).withOpacity(0.8),
+          color: Colors.white.withOpacity(0.01),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: Color(widget.note.color).withOpacity(0.5),
@@ -58,7 +59,8 @@ class _NoteCardState extends State<NoteCard>
           ),
           boxShadow: [
             BoxShadow(
-              color: Color(widget.note.color).withOpacity(0.5),
+              // color: Color(widget.note.color).withOpacity(0.3),
+              color: Color(widget.note.color).withOpacity(0.25),
               blurRadius: 20,
               offset: Offset(0, 10),
               spreadRadius: 2,
@@ -104,7 +106,8 @@ class _NoteCardState extends State<NoteCard>
                     ),
 
                   // ✅ Image (if exists)
-                  if (widget.note.imagePath != null)
+                  if (widget.note.imagePaths != null &&
+                      widget.note.imagePaths!.isNotEmpty)
                     customImage(note: widget.note),
 
                   // ✅ Text (if exists)

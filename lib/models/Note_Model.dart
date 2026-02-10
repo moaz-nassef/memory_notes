@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 
 part 'note_model.g.dart';
@@ -14,7 +13,7 @@ class NoteModel extends HiveObject {
   String? text;
 
   @HiveField(2)
-  String? imagePath;
+  List<String>? imagePaths;
 
   @HiveField(3)
   String? audioPath;
@@ -29,7 +28,7 @@ class NoteModel extends HiveObject {
   NoteModel({
     required this.title,
     this.text,
-    this.imagePath,
+    this.imagePaths,
     this.audioPath,
     required this.createdAt,
     required this.color,
@@ -38,14 +37,14 @@ class NoteModel extends HiveObject {
   // هل في أي محتوى؟
   bool get hasAnyContent {
     return (text != null && text!.trim().isNotEmpty) ||
-        imagePath != null ||
+        imagePaths != null && imagePaths!.isNotEmpty ||
         audioPath != null;
   }
 
   // نوع النوت
   NoteType get type {
     final hasText = text != null && text!.trim().isNotEmpty;
-    final hasImage = imagePath != null;
+    final hasImage = imagePaths != null && imagePaths!.isNotEmpty;
     final hasAudio = audioPath != null;
 
     final count = [hasText, hasImage, hasAudio].where((e) => e).length;
@@ -71,7 +70,7 @@ class NoteModel extends HiveObject {
     return NoteModel(
       title: title ?? this.title,
       text: text ?? this.text,
-      imagePath: imagePath ?? this.imagePath,
+      imagePaths: imagePath != null ? [imagePath] : this.imagePaths,
       audioPath: audioPath ?? this.audioPath,
       createdAt: createdAt ?? this.createdAt,
       color: color ?? this.color,

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/adapters.dart';
+import 'package:memory_notes/app_router.dart';
 import 'package:memory_notes/models/note_model.dart';
-import 'package:memory_notes/views/Home_page_notesView.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -12,7 +12,6 @@ void main() async {
   await Hive.openBox<NoteModel>('notesBox');
   runApp(const MyApp());
 }
-
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -27,8 +26,8 @@ class MyApp extends StatelessWidget {
 
         // colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      // home: const NotesView(),
-      home: const NotesListScreen(),
+      initialRoute: AppRoutes.notesList,
+      onGenerateRoute: AppRouter.onGenerateRoute,
     );
   }
 }
