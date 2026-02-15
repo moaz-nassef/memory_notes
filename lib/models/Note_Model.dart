@@ -21,7 +21,6 @@ class NoteModel extends HiveObject {
   @HiveField(4)
   DateTime createdAt;
 
-  // نخزن اللون كـ int
   @HiveField(5)
   int color;
 
@@ -34,7 +33,6 @@ class NoteModel extends HiveObject {
     required this.color,
   });
 
-  // هل في أي محتوى؟
   bool get hasAnyContent {
     return (text != null && text!.trim().isNotEmpty) ||
         imagePaths != null && imagePaths!.isNotEmpty ||
