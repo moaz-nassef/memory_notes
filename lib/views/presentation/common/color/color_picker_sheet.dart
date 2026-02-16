@@ -23,7 +23,7 @@ class ColorPickerSheet extends StatelessWidget {
         child: GestureDetector(
           onTap: () {},
           child: Container(
-            margin: const EdgeInsets.only(top: 100),
+            margin: const EdgeInsets.only(top: 200),
             decoration: const BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
@@ -41,12 +41,12 @@ class ColorPickerSheet extends StatelessWidget {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.all(24.0),
+                  padding: const EdgeInsets.all(8.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
-                        '🎨 اختر اللون',
+                        '🎨 Pick a color',
                         style: TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
@@ -58,10 +58,10 @@ class ColorPickerSheet extends StatelessWidget {
                         physics: const NeverScrollableScrollPhysics(),
                         gridDelegate:
                             const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 4,
-                          crossAxisSpacing: 16,
-                          mainAxisSpacing: 16,
-                        ),
+                              crossAxisCount: 4,
+                              crossAxisSpacing: 16,
+                              mainAxisSpacing: 16,
+                            ),
                         itemCount: noteColors.length,
                         itemBuilder: (context, index) {
                           final item = noteColors[index];
@@ -78,12 +78,13 @@ class ColorPickerSheet extends StatelessWidget {
                                   decoration: BoxDecoration(
                                     color: color,
                                     shape: BoxShape.circle,
-                                    border: isSelected
-                                        ? Border.all(
-                                            color: Colors.black,
-                                            width: 3,
-                                          )
-                                        : null,
+                                    border:
+                                        isSelected
+                                            ? Border.all(
+                                              color: Colors.black,
+                                              width: 3,
+                                            )
+                                            : null,
                                     boxShadow: [
                                       BoxShadow(
                                         color: color.withOpacity(0.5),
@@ -92,22 +93,28 @@ class ColorPickerSheet extends StatelessWidget {
                                       ),
                                     ],
                                   ),
-                                  child: isSelected
-                                      ? const Icon(
-                                          Icons.check_rounded,
-                                          color: Colors.white,
-                                          size: 30,
-                                        )
-                                      : null,
+                                  child:
+                                      isSelected
+                                          ? const Icon(
+                                            Icons.check_rounded,
+                                            color: Colors.white,
+                                            size: 30,
+                                          )
+                                          : null,
                                 ),
-                                const SizedBox(height: 6),
+                                const SizedBox(height: 8),
                                 Text(
                                   item['name'] as String,
                                   style: TextStyle(
-                                    fontSize: 11,
-                                    fontWeight: isSelected
-                                        ? FontWeight.bold
-                                        : FontWeight.normal,
+                                    color:
+                                        isSelected
+                                            ? selectedColor
+                                            : Colors.black,
+                                    fontSize: 12,
+                                    fontWeight:
+                                        isSelected
+                                            ? FontWeight.bold
+                                            : FontWeight.normal,
                                   ),
                                 ),
                               ],
@@ -127,4 +134,3 @@ class ColorPickerSheet extends StatelessWidget {
     );
   }
 }
-

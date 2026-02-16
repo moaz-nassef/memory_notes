@@ -17,7 +17,6 @@ class NoteModelAdapter extends TypeAdapter<NoteModel> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
 
-    // Handle imagePaths - convert String to List<String> if needed
     List<String>? imagePaths;
     if (fields[2] != null) {
       if (fields[2] is String) {
@@ -34,13 +33,14 @@ class NoteModelAdapter extends TypeAdapter<NoteModel> {
       audioPath: fields[3] as String?,
       createdAt: fields[4] as DateTime,
       color: fields[5] as int,
+      audioDurationMs: fields[6] as int?,
     );
   }
 
   @override
   void write(BinaryWriter writer, NoteModel obj) {
     writer
-      ..writeByte(6)
+      ..writeByte(7)
       ..writeByte(0)
       ..write(obj.title)
       ..writeByte(1)
@@ -52,7 +52,9 @@ class NoteModelAdapter extends TypeAdapter<NoteModel> {
       ..writeByte(4)
       ..write(obj.createdAt)
       ..writeByte(5)
-      ..write(obj.color);
+      ..write(obj.color)
+      ..writeByte(6)
+      ..write(obj.audioDurationMs);
   }
 
   @override

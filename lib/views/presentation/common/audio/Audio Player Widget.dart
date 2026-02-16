@@ -3,7 +3,7 @@ import 'package:memory_notes/models/note_model.dart';
 import 'package:audioplayers/audioplayers.dart';
 
 class AudioPlayerWidget extends StatefulWidget {
-  const AudioPlayerWidget({Key? key, required this.note}) : super(key: key);
+  const AudioPlayerWidget({super.key, required this.note});
   final NoteModel note;
 
   @override
@@ -54,6 +54,12 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget>
 
   @override
   Widget build(BuildContext context) {
+    final totalDuration = _effectiveDuration;
+    final remaining = totalDuration - _position;
+    final safeRemaining = remaining.isNegative ? Duration.zero : remaining;
+    final sliderMax =
+        totalDuration.inSeconds == 0 ? 1.0 : totalDuration.inSeconds.toDouble();
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -68,11 +74,8 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget>
       ),
       child: Row(
         children: [
-          // Play/Pause Button
           GestureDetector(
             onTap: _togglePlay,
-
-            // TODO: Implement actual audio playback
             child: AnimatedBuilder(
               animation: _pulseController,
               builder: (context, child) {
@@ -84,18 +87,16 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget>
                     gradient: const LinearGradient(
                       colors: [Colors.purple, Colors.deepPurple],
                     ),
-                    boxShadow:
-                        isPlaying
-                            ? [
-                              BoxShadow(
-                                color: Colors.purple.withOpacity(
-                                  0.5 * _pulseController.value,
-                                ),
-                                blurRadius: 20,
-                                spreadRadius: 5,
-                              ),
-                            ]
-                            : null,
+                    boxShadow: isPlaying
+                        ? [
+                            BoxShadow(
+                              color: Colors.purple
+                                  .withOpacity(0.5 * _pulseController.value),
+                              blurRadius: 20,
+                              spreadRadius: 5,
+                            ),
+                          ]
+                        : null,
                   ),
                   child: Icon(
                     isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
@@ -106,10 +107,7 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget>
               },
             ),
           ),
-
           const SizedBox(width: 16),
-
-          // Audio Info
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -123,7 +121,7 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget>
                     ),
                     const SizedBox(width: 6),
                     Text(
-                      _formatDuration(_duration - _position),
+                      _formatDuration(safeRemaining),
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.bold,
@@ -133,19 +131,13 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget>
                   ],
                 ),
                 const SizedBox(height: 4),
-
                 Text(
                   isPlaying ? 'is playing' : 'is paused',
                   style: TextStyle(fontSize: 13, color: Colors.grey[600]),
                 ),
-
-                // const SizedBox(height: 5),
                 Slider(
-                  value: _position.inSeconds.toDouble(),
-                  max:
-                      _duration.inSeconds.toDouble() == 0
-                          ? 1
-                          : _duration.inSeconds.toDouble(),
+                  value: _position.inSeconds.toDouble().clamp(0.0, sliderMax),
+                  max: sliderMax,
                   onChanged: (value) async {
                     await _audioPlayer.seek(Duration(seconds: value.toInt()));
                   },
@@ -157,6 +149,17 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget>
         ],
       ),
     );
+  }
+
+  Duration get _effectiveDuration {
+    if (_duration != Duration.zero) return _duration;
+
+    final recordedMs = widget.note.audioDurationMs;
+    if (recordedMs != null && recordedMs > 0) {
+      return Duration(milliseconds: recordedMs);
+    }
+
+    return Duration.zero;
   }
 
   Future<void> _togglePlay() async {

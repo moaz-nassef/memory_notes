@@ -24,6 +24,9 @@ class NoteModel extends HiveObject {
   @HiveField(5)
   int color;
 
+  @HiveField(6)
+  int? audioDurationMs;
+
   NoteModel({
     required this.title,
     this.text,
@@ -31,15 +34,15 @@ class NoteModel extends HiveObject {
     this.audioPath,
     required this.createdAt,
     required this.color,
+    this.audioDurationMs,
   });
 
   bool get hasAnyContent {
     return (text != null && text!.trim().isNotEmpty) ||
-        imagePaths != null && imagePaths!.isNotEmpty ||
+        (imagePaths != null && imagePaths!.isNotEmpty) ||
         audioPath != null;
   }
 
-  // نوع النوت
   NoteType get type {
     final hasText = text != null && text!.trim().isNotEmpty;
     final hasImage = imagePaths != null && imagePaths!.isNotEmpty;
@@ -53,10 +56,8 @@ class NoteModel extends HiveObject {
     return NoteType.text;
   }
 
-  // هل فاضية؟
   bool get isEmpty => !hasAnyContent;
 
-  // copyWith (مصحح)
   NoteModel copyWith({
     String? title,
     String? text,
@@ -64,6 +65,7 @@ class NoteModel extends HiveObject {
     String? audioPath,
     DateTime? createdAt,
     int? color,
+    int? audioDurationMs,
   }) {
     return NoteModel(
       title: title ?? this.title,
@@ -72,6 +74,7 @@ class NoteModel extends HiveObject {
       audioPath: audioPath ?? this.audioPath,
       createdAt: createdAt ?? this.createdAt,
       color: color ?? this.color,
+      audioDurationMs: audioDurationMs ?? this.audioDurationMs,
     );
   }
 }

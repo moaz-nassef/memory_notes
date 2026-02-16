@@ -6,8 +6,8 @@ import 'package:memory_notes/manager/audio_recorder_controller.dart';
 import 'package:memory_notes/manager/audio_recorder_file_helper.dart';
 import 'package:memory_notes/models/note_model.dart';
 import 'package:memory_notes/views/presentation/add_note/top_Bar_AddNote.dart';
+import 'package:memory_notes/views/presentation/common/audio/Audio%20Player%20Widget.dart';
 import 'package:memory_notes/views/presentation/common/audio/buildVoiceOverlay.dart';
-import 'package:memory_notes/views/presentation/common/audio/note_audio_badge.dart';
 import 'package:memory_notes/views/presentation/common/build_Floating_Button.dart';
 import 'package:memory_notes/views/presentation/common/color/color_picker_sheet.dart';
 import 'package:memory_notes/views/presentation/common/image/Image_Picker_Page.dart';
@@ -34,7 +34,9 @@ class _AddNoteScreenState extends State<AddNoteScreen>
   List<String> selectedImagePaths = [];
   bool hasAudio = false;
   String? recordedAudioPath;
+  int? recordedAudioDurationMs;
   String? _previousAudioPathBeforeRecording;
+  int? _previousAudioDurationBeforeRecording;
 
   Color selectedColor = const Color(0xFF667EEA);
   bool showColorPicker = false;
@@ -97,6 +99,7 @@ class _AddNoteScreenState extends State<AddNoteScreen>
 
   Future<void> _startVoiceRecording() async {
     _previousAudioPathBeforeRecording = recordedAudioPath;
+    _previousAudioDurationBeforeRecording = recordedAudioDurationMs;
 
     setState(() {
       isRecording = true;
@@ -149,6 +152,7 @@ class _AddNoteScreenState extends State<AddNoteScreen>
         if (savedPath != null) {
           setState(() {
             recordedAudioPath = savedPath;
+            recordedAudioDurationMs = recordingDurationMs;
             hasAudio = true;
           });
           _showSnackBar('Recording saved', Colors.green);
@@ -166,6 +170,7 @@ class _AddNoteScreenState extends State<AddNoteScreen>
       if (!isSend) {
         setState(() {
           recordedAudioPath = _previousAudioPathBeforeRecording;
+          recordedAudioDurationMs = _previousAudioDurationBeforeRecording;
           hasAudio = recordedAudioPath != null;
         });
       }
@@ -193,6 +198,7 @@ class _AddNoteScreenState extends State<AddNoteScreen>
     if (!mounted) return;
     setState(() {
       recordedAudioPath = null;
+      recordedAudioDurationMs = null;
       hasAudio = false;
     });
   }
@@ -218,6 +224,7 @@ class _AddNoteScreenState extends State<AddNoteScreen>
       imagePaths:
           selectedImagePaths.isEmpty ? null : List.from(selectedImagePaths),
       audioPath: recordedAudioPath,
+      audioDurationMs: recordedAudioDurationMs,
       createdAt: DateTime.now(),
       color: selectedColor.toARGB32(),
     );
@@ -240,6 +247,48 @@ class _AddNoteScreenState extends State<AddNoteScreen>
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         margin: const EdgeInsets.all(16),
       ),
+    );
+  }
+
+  Widget _buildAudioPreviewCard() {
+    final path = recordedAudioPath;
+    if (path == null) return const SizedBox.shrink();
+
+    final previewNote = NoteModel(
+      title: 'Audio Preview',
+      audioPath: path,
+      audioDurationMs: recordedAudioDurationMs,
+      createdAt: DateTime.now(),
+      color: selectedColor.toARGB32(),
+    );
+
+    return Stack(
+      children: [
+        AudioPlayerWidget(note: previewNote),
+        Positioned(
+          top: 8,
+          right: 8,
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(20),
+              onTap: _removeAudio,
+              child: Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.85),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.close_rounded,
+                  size: 18,
+                  color: Colors.red,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -294,7 +343,7 @@ class _AddNoteScreenState extends State<AddNoteScreen>
                             },
                           ),
                         NoteTextField(controller: _textController),
-                        if (hasAudio) NoteAudioBadge(onRemove: _removeAudio),
+                        if (hasAudio) _buildAudioPreviewCard(),
                         const SizedBox(height: 100),
                       ],
                     ),
@@ -303,8 +352,6 @@ class _AddNoteScreenState extends State<AddNoteScreen>
               ],
             ),
           ),
-
-          // ✅ Floating Action Buttons - Creative!
           Positioned(
             bottom: 24,
             right: 24,
