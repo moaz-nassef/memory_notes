@@ -16,8 +16,8 @@ import 'package:memory_notes/views/presentation/common/text/note_text_field.dart
 import 'package:memory_notes/views/presentation/common/text/note_title_field.dart';
 
 class AddNoteScreen extends StatefulWidget {
-  const AddNoteScreen({super.key});
-
+  const AddNoteScreen({super.key, this.initialNote});
+  final NoteModel? initialNote;
   @override
   State<AddNoteScreen> createState() => _AddNoteScreenState();
 }
@@ -83,7 +83,19 @@ class _AddNoteScreenState extends State<AddNoteScreen>
       duration: const Duration(milliseconds: 800),
     )..repeat(reverse: true);
 
-    _audioRecorderController = AudioRecorderController(AudioRecorderFileHelper());
+    _audioRecorderController = AudioRecorderController(
+      AudioRecorderFileHelper(),
+    );
+    // If we're editing an existing note, pre-fill the fields
+    if (widget.initialNote != null) {
+      final note = widget.initialNote!;
+      _titleController.text = note.title;
+      _textController.text = note.text ?? '';
+      selectedImagePaths = List<String>.from(note.imagePaths ?? []);
+      recordedAudioPath = note.audioPath;
+      hasAudio = note.audioPath != null;
+      selectedColor = Color(note.color);
+    }
   }
 
   @override
@@ -218,14 +230,15 @@ class _AddNoteScreenState extends State<AddNoteScreen>
 
     final note = NoteModel(
       title: _titleController.text.trim(),
-      text: _textController.text.trim().isEmpty
-          ? null
-          : _textController.text.trim(),
+      text:
+          _textController.text.trim().isEmpty
+              ? null
+              : _textController.text.trim(),
       imagePaths:
           selectedImagePaths.isEmpty ? null : List.from(selectedImagePaths),
       audioPath: recordedAudioPath,
       audioDurationMs: recordedAudioDurationMs,
-      createdAt: DateTime.now(),
+      createdAt: widget.initialNote?.createdAt ?? DateTime.now(),
       color: selectedColor.toARGB32(),
     );
 
@@ -316,6 +329,7 @@ class _AddNoteScreenState extends State<AddNoteScreen>
                 TopBarAddnote(
                   saveNote: _saveNote,
                   selectedColor: selectedColor,
+                  title: widget.initialNote == null ? 'New Note' : 'Edit Note',
                 ),
                 Expanded(
                   child: SingleChildScrollView(
@@ -335,9 +349,9 @@ class _AddNoteScreenState extends State<AddNoteScreen>
                               if (index >= 0 &&
                                   index < selectedImagePaths.length) {
                                 setState(() {
-                                  selectedImagePaths =
-                                      List.from(selectedImagePaths)
-                                        ..removeAt(index);
+                                  selectedImagePaths = List.from(
+                                    selectedImagePaths,
+                                  )..removeAt(index);
                                 });
                               }
                             },
@@ -389,7 +403,10 @@ class _AddNoteScreenState extends State<AddNoteScreen>
                     if (hasAudio) {
                       _removeAudio();
                     } else {
-                      _showSnackBar('Long press to start recording', Colors.purple);
+                      _showSnackBar(
+                        'Long press to start recording',
+                        Colors.purple,
+                      );
                     }
                   },
                   onLongPressStart: (_) {
@@ -419,15 +436,18 @@ class _AddNoteScreenState extends State<AddNoteScreen>
                             shape: BoxShape.circle,
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.purple
-                                    .withOpacity(isRecording ? 0.6 : 0.5),
-                                blurRadius: isRecording
-                                    ? 25 + (15 * _pulseController.value)
-                                    : 20,
+                                color: Colors.purple.withOpacity(
+                                  isRecording ? 0.6 : 0.5,
+                                ),
+                                blurRadius:
+                                    isRecording
+                                        ? 25 + (15 * _pulseController.value)
+                                        : 20,
                                 offset: const Offset(0, 10),
-                                spreadRadius: isRecording
-                                    ? 3 + (5 * _pulseController.value)
-                                    : 0,
+                                spreadRadius:
+                                    isRecording
+                                        ? 3 + (5 * _pulseController.value)
+                                        : 0,
                               ),
                             ],
                           ),

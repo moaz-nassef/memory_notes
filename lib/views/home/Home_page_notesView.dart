@@ -6,6 +6,7 @@ import 'package:memory_notes/manager/audio_recorder_file_helper.dart';
 import 'package:memory_notes/models/note_model.dart';
 import 'package:memory_notes/views/home/Header.dart';
 import 'package:memory_notes/views/home/note_card.dart';
+import 'package:memory_notes/views/presentation/add_note/add_note_screen.dart';
 
 class NotesListScreen extends StatefulWidget {
   const NotesListScreen({super.key});
@@ -49,46 +50,86 @@ class _NotesListScreenState extends State<NotesListScreen> {
         child: SafeArea(
           child: Column(
             children: [
-              Header(noteCount: notesBox.values.length),
               Expanded(
                 child: ValueListenableBuilder(
                   valueListenable: notesBox.listenable(),
                   builder: (context, Box<NoteModel> box, _) {
                     final notes = box.values.toList();
 
-                    return ListView.builder(
-                      padding: const EdgeInsets.only(bottom: 80),
-                      itemCount: notes.length,
-                      itemBuilder: (context, index) {
-                        return NoteCard(
-                          note: notes[index],
-                          onDelete: () async {
-                            final confirm = await showDialog<bool>(
-                              context: context,
-                              builder: (_) => AlertDialog(
-                                title: const Text('Delete note?'),
-                                content: const Text(
-                                  'This will delete note data and its audio file.',
-                                ),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () => Navigator.pop(context, false),
-                                    child: const Text('Cancel'),
-                                  ),
-                                  ElevatedButton(
-                                    onPressed: () => Navigator.pop(context, true),
-                                    child: const Text('Delete'),
-                                  ),
-                                ],
-                              ),
-                            );
+                    return Column(
+                      children: [
+                        Header(noteCount: notes.length),
+                        Expanded(
+                          child: ListView.builder(
+                            padding: const EdgeInsets.only(bottom: 80),
+                            itemCount: notes.length,
+                            itemBuilder: (context, index) {
+                              return NoteCard(
+                                note: notes[index],
+                                // Navigate to edit screen on tap
+                                onEdit: () async {
+                                  final editedNote =
+                                      await Navigator.push<NoteModel>(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder:
+                                              (_) => AddNoteScreen(
+                                                initialNote: notes[index],
+                                              ),
+                                        ),
+                                      );
 
-                            if (confirm == true) {
-                              await _deleteNoteWithAudio(notes[index]);
-                            }
-                          },
-                        );
-                      },
+                                  if (editedNote != null) {
+                                    final existingNote = notes[index];
+                                    existingNote
+                                      ..title = editedNote.title
+                                      ..text = editedNote.text
+                                      ..imagePaths = editedNote.imagePaths
+                                      ..audioPath = editedNote.audioPath
+                                      ..color = editedNote.color;
+                                    await existingNote.save();
+                                  }
+                                },
+                                //end edit
+                                onDelete: () async {
+                                  final confirm = await showDialog<bool>(
+                                    context: context,
+                                    builder:
+                                        (_) => AlertDialog(
+                                          title: const Text('Delete note?'),
+                                          content: const Text(
+                                            'This will delete note data and its audio file.',
+                                          ),
+                                          actions: [
+                                            TextButton(
+                                              onPressed:
+                                                  () => Navigator.pop(
+                                                    context,
+                                                    false,
+                                                  ),
+                                              child: const Text('Cancel'),
+                                            ),
+                                            ElevatedButton(
+                                              onPressed:
+                                                  () => Navigator.pop(
+                                                    context,
+                                                    true,
+                                                  ),
+                                              child: const Text('Delete'),
+                                            ),
+                                          ],
+                                        ),
+                                  );
+
+                                  if (confirm == true) {
+                                    await _deleteNoteWithAudio(notes[index]);
+                                  }
+                                },
+                              );
+                            },
+                          ),
+                        ),
+                      ],
                     );
                   },
                 ),
@@ -99,10 +140,7 @@ class _NotesListScreenState extends State<NotesListScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          final newNote = await Navigator.pushNamed(
-            context,
-            AppRoutes.addNote,
-          );
+          final newNote = await Navigator.pushNamed(context, AppRoutes.addNote);
 
           if (newNote != null) {
             await notesBox.add(newNote as NoteModel);

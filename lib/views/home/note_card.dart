@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
-import 'dart:io';
 import 'package:memory_notes/models/note_model.dart';
 import 'package:memory_notes/views/presentation/common/audio/Audio%20Player%20Widget.dart';
 import 'package:memory_notes/views/presentation/common/image/widget%20image.dart';
+import 'package:intl/intl.dart';
 
-class NoteCard extends StatefulWidget {
+class NoteCard extends StatelessWidget {
   final NoteModel note;
   final VoidCallback? onTap;
   final VoidCallback? onLongPress;
   final VoidCallback? onDelete;
+  final VoidCallback? onEdit;
 
   const NoteCard({
     super.key,
@@ -16,170 +17,133 @@ class NoteCard extends StatefulWidget {
     this.onTap,
     this.onLongPress,
     this.onDelete,
+    this.onEdit,
   });
-
-  @override
-  State<NoteCard> createState() => _NoteCardState();
-}
-
-class _NoteCardState extends State<NoteCard>
-    with SingleTickerProviderStateMixin {
-  bool isPlaying = false;
-  late AnimationController _pulseController;
-
-  @override
-  void initState() {
-    super.initState();
-    _pulseController = AnimationController(
-      vsync: this,
-      duration: Duration(milliseconds: 1000),
-    )..repeat(reverse: true);
-  }
-
-  @override
-  void dispose() {
-    _pulseController.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: widget.onTap,
-      onLongPress: widget.onLongPress,
+      onTap: onTap,
+      onLongPress: onLongPress,
       child: Container(
-        margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          // color: Color(widget.note.color).withOpacity(0.8),
-          color: Colors.white.withOpacity(0.01),
+          color: Colors.white.withOpacity(0.02),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: Color(widget.note.color).withOpacity(0.5),
+            color: Color(note.color).withOpacity(0.5),
             width: 2,
           ),
           boxShadow: [
             BoxShadow(
-              // color: Color(widget.note.color).withOpacity(0.3),
-              color: Color(widget.note.color).withOpacity(0.25),
+              color: Color(note.color).withOpacity(0.25),
               blurRadius: 20,
-              offset: Offset(0, 10),
-              spreadRadius: 2,
+              offset: const Offset(0, 10),
             ),
             BoxShadow(
               color: Colors.black.withOpacity(0.1),
               blurRadius: 10,
-              offset: Offset(0, 4),
+              offset: const Offset(0, 4),
             ),
           ],
         ),
-
-        child: Stack(
-          children: [
-            // Main Content
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // ✅ Title (if exists)
-                  if (widget.note.title != null &&
-                      widget.note.title!.isNotEmpty)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              widget.note.title!,
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.grey[900],
-                              ),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                          _buildTypeIcon(),
-                        ],
-                      ),
-                    ),
-
-                  // ✅ Image (if exists)
-                  if (widget.note.imagePaths != null &&
-                      widget.note.imagePaths!.isNotEmpty)
-                    customImage(note: widget.note),
-
-                  // ✅ Text (if exists)
-                  if (widget.note.text != null && widget.note.text!.isNotEmpty)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (note.title != null && note.title!.isNotEmpty)
+                Row(
+                  children: [
+                    Expanded(
                       child: Text(
-                        widget.note.text!,
-                        style: TextStyle(
-                          fontSize: 15,
-                          height: 1.5,
-                          color: Colors.grey[800],
+                        note.title!,
+                        style: const TextStyle(
+                          fontSize: 30,
+                          fontWeight: FontWeight.bold,
                         ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
+                    _buildTypeIcon(),
+                  ],
+                ),
 
-                  // ✅ Audio Player (if exists)
-                  if (widget.note.audioPath != null)
-                    AudioPlayerWidget(note: widget.note),
+              const SizedBox(height: 8),
 
-                  SizedBox(height: 8),
+              //  Images
+              if (note.imagePaths != null && note.imagePaths!.isNotEmpty)
+                customImage(note: note),
 
-                  // ✅ Date & Actions
+              //  Text
+              if (note.text != null && note.text!.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: Text(
+                    note.text!,
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 20,
+                      height: 1.5,
+                      color: Color.fromARGB(255, 255, 255, 255),
+                    ),
+                  ),
+                ),
+
+              //  Audio
+              if (note.audioPath != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: AudioPlayerWidget(note: note),
+                ),
+
+              const SizedBox(height: 12),
+
+              //  Footer (Date + Actions)
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    // _formatDate(note.createdAt),
+                    DateFormat('yyyy/MM/dd – kk:mm').format(note.createdAt),
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: const Color.fromARGB(255, 224, 224, 224),
+                    ),
+                  ),
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.calendar_today_rounded,
-                            size: 14,
-                            color: Colors.grey[600],
-                          ),
-                          SizedBox(width: 6),
-                          Text(
-                            _formatDate(widget.note.createdAt),
-                            style: TextStyle(
-                              fontSize: 13,
-                              color: Colors.grey[600],
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ],
-                      ),
-
-                      if (widget.onDelete != null)
+                      if (onEdit != null)
                         IconButton(
-                          icon: Icon(Icons.delete_outline, size: 20),
-                          color: Colors.red[400],
-                          onPressed: widget.onDelete,
-                          padding: EdgeInsets.zero,
-                          constraints: BoxConstraints(),
+                          icon: const Icon(Icons.edit_rounded),
+                          onPressed: onEdit,
+                          color: Colors.greenAccent,
+                        ),
+                      if (onDelete != null)
+                        IconButton(
+                          icon: const Icon(Icons.delete_outline),
+                          color: Colors.red,
+                          onPressed: onDelete,
                         ),
                     ],
                   ),
                 ],
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 
-  // ✅ Type Icon
+  // 🔹 Type Icon
   Widget _buildTypeIcon() {
-    IconData icon;
-    Color color;
+    late IconData icon;
+    late Color color;
 
-    switch (widget.note.type) {
+    switch (note.type) {
       case NoteType.image:
         icon = Icons.image_rounded;
         color = Colors.blue;
@@ -198,24 +162,21 @@ class _NoteCardState extends State<NoteCard>
     }
 
     return Container(
-      padding: EdgeInsets.all(8),
+      padding: const EdgeInsets.all(6),
       decoration: BoxDecoration(
         color: color.withOpacity(0.2),
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(8),
       ),
       child: Icon(icon, size: 18, color: color),
     );
   }
 
-  // ✅ Format Date
+  // 🔹 Date Formatter
   String _formatDate(DateTime date) {
-    final now = DateTime.now();
-    final diff = now.difference(date);
-
+    final diff = DateTime.now().difference(date);
     if (diff.inDays == 0) return 'اليوم';
     if (diff.inDays == 1) return 'أمس';
     if (diff.inDays < 7) return 'منذ ${diff.inDays} أيام';
-
     return '${date.day}/${date.month}/${date.year}';
   }
 }

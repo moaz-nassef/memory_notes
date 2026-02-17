@@ -52,7 +52,7 @@ class ColorPickerSheet extends StatelessWidget {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 10),
                       GridView.builder(
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
@@ -110,7 +110,7 @@ class ColorPickerSheet extends StatelessWidget {
                                         isSelected
                                             ? selectedColor
                                             : Colors.black,
-                                    fontSize: 12,
+                                    fontSize: 8,
                                     fontWeight:
                                         isSelected
                                             ? FontWeight.bold

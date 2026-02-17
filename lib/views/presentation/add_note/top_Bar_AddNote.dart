@@ -7,10 +7,11 @@ class TopBarAddnote extends StatelessWidget {
     super.key,
     required this.saveNote,
     required this.selectedColor,
+    required this.title,
   });
-  Color selectedColor = Color(0xFF667EEA);
+  final Color selectedColor;
   final VoidCallback saveNote;
-
+  final String title;
   @override
   Widget build(BuildContext context) {
     return // Top Bar - Floating Glass
@@ -45,7 +46,7 @@ class TopBarAddnote extends StatelessWidget {
                 ),
                 Spacer(),
                 Text(
-                  'ملاحظة جديدة',
+                  title,
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,

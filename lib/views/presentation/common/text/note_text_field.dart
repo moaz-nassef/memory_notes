@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 
 class NoteTextField extends StatelessWidget {
-  const NoteTextField({
-    super.key,
-    required this.controller,
-  });
+  const NoteTextField({super.key, required this.controller});
 
   final TextEditingController controller;
 
@@ -15,14 +12,14 @@ class NoteTextField extends StatelessWidget {
       maxLines: null,
       minLines: 8,
       style: TextStyle(
-        fontSize: 16,
+        fontSize: 20,
         height: 1.8,
-        color: Colors.grey[800],
+        color: const Color.fromARGB(255, 255, 255, 255),
       ),
       decoration: InputDecoration(
         hintText: 'Record your thoughts here... 📝',
         hintStyle: TextStyle(
-          color: Colors.grey[400],
+          color: const Color.fromARGB(255, 193, 192, 192),
           fontSize: 15,
         ),
         border: InputBorder.none,
@@ -30,4 +27,3 @@ class NoteTextField extends StatelessWidget {
     );
   }
 }
-
