@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'note_model.dart';
+part of 'Note_Model.dart';
 
 // **************************************************************************
 // TypeAdapterGenerator
@@ -16,31 +16,22 @@ class NoteModelAdapter extends TypeAdapter<NoteModel> {
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
-
-    List<String>? imagePaths;
-    if (fields[2] != null) {
-      if (fields[2] is String) {
-        imagePaths = [fields[2] as String];
-      } else if (fields[2] is List) {
-        imagePaths = (fields[2] as List).cast<String>();
-      }
-    }
-
     return NoteModel(
       title: fields[0] as String,
       text: fields[1] as String?,
-      imagePaths: imagePaths,
+      imagePaths: (fields[2] as List?)?.cast<String>(),
       audioPath: fields[3] as String?,
       createdAt: fields[4] as DateTime,
       color: fields[5] as int,
       audioDurationMs: fields[6] as int?,
+      checklist: (fields[7] as List?)?.cast<TaskModel>(),
     );
   }
 
   @override
   void write(BinaryWriter writer, NoteModel obj) {
     writer
-      ..writeByte(7)
+      ..writeByte(8)
       ..writeByte(0)
       ..write(obj.title)
       ..writeByte(1)
@@ -54,7 +45,9 @@ class NoteModelAdapter extends TypeAdapter<NoteModel> {
       ..writeByte(5)
       ..write(obj.color)
       ..writeByte(6)
-      ..write(obj.audioDurationMs);
+      ..write(obj.audioDurationMs)
+      ..writeByte(7)
+      ..write(obj.checklist);
   }
 
   @override

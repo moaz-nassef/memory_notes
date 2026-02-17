@@ -4,7 +4,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:memory_notes/manager/audio_recorder_controller.dart';
 import 'package:memory_notes/manager/audio_recorder_file_helper.dart';
-import 'package:memory_notes/models/note_model.dart';
+import 'package:memory_notes/models/Note_Model.dart';
+import 'package:memory_notes/models/task_model.dart';
 import 'package:memory_notes/views/presentation/add_note/top_Bar_AddNote.dart';
 import 'package:memory_notes/views/presentation/common/audio/Audio%20Player%20Widget.dart';
 import 'package:memory_notes/views/presentation/common/audio/buildVoiceOverlay.dart';
@@ -26,12 +27,14 @@ class _AddNoteScreenState extends State<AddNoteScreen>
     with TickerProviderStateMixin {
   final _titleController = TextEditingController();
   final _textController = TextEditingController();
+  final _taskController = TextEditingController();
 
   late final AudioRecorderController _audioRecorderController;
   StreamSubscription<double>? _amplitudeSub;
   StreamSubscription<int>? _durationSub;
 
   List<String> selectedImagePaths = [];
+  List<TaskModel> checklistItems = [];
   bool hasAudio = false;
   String? recordedAudioPath;
   int? recordedAudioDurationMs;
@@ -55,14 +58,15 @@ class _AddNoteScreenState extends State<AddNoteScreen>
     String? text,
     List<String>? imagePaths,
     String? audioPath,
+    List<TaskModel>? checklist,
   }) {
-    if (title.trim().isEmpty) return false;
-
+    final hasTitle = title.trim().isNotEmpty;
     final hasText = text != null && text.trim().isNotEmpty;
     final hasImage = imagePaths != null && imagePaths.isNotEmpty;
     final hasAudio = audioPath != null;
+    final hasChecklist = checklist != null && checklist.isNotEmpty;
 
-    return hasText || hasImage || hasAudio;
+    return hasTitle || hasText || hasImage || hasAudio || hasChecklist;
   }
 
   final List<Map<String, dynamic>> noteColors = const [
@@ -95,6 +99,7 @@ class _AddNoteScreenState extends State<AddNoteScreen>
       recordedAudioPath = note.audioPath;
       hasAudio = note.audioPath != null;
       selectedColor = Color(note.color);
+      checklistItems = List<TaskModel>.from(note.checklist ?? []);
     }
   }
 
@@ -106,6 +111,7 @@ class _AddNoteScreenState extends State<AddNoteScreen>
     _pulseController.dispose();
     _titleController.dispose();
     _textController.dispose();
+    _taskController.dispose();
     super.dispose();
   }
 
@@ -221,10 +227,14 @@ class _AddNoteScreenState extends State<AddNoteScreen>
       text: _textController.text,
       imagePaths: selectedImagePaths.isEmpty ? null : selectedImagePaths,
       audioPath: recordedAudioPath,
+      checklist: checklistItems.isEmpty ? null : checklistItems,
     );
 
     if (!isValid) {
-      _showSnackBar('Add a title and at least one content type', Colors.orange);
+      _showSnackBar(
+        'Add a title and at least one content type',
+        Colors.orange.withOpacity(.5),
+      );
       return;
     }
 
@@ -238,11 +248,113 @@ class _AddNoteScreenState extends State<AddNoteScreen>
           selectedImagePaths.isEmpty ? null : List.from(selectedImagePaths),
       audioPath: recordedAudioPath,
       audioDurationMs: recordedAudioDurationMs,
+      checklist:
+          checklistItems.isEmpty ? null : List<TaskModel>.from(checklistItems),
       createdAt: widget.initialNote?.createdAt ?? DateTime.now(),
       color: selectedColor.toARGB32(),
     );
 
     Navigator.pop(context, note);
+  }
+
+  void _addTask() {
+    final taskTitle = _taskController.text.trim();
+    if (taskTitle.isEmpty) return;
+
+    setState(() {
+      checklistItems = List<TaskModel>.from(checklistItems)
+        ..add(TaskModel(title: taskTitle));
+      _taskController.clear();
+    });
+  }
+
+  void _toggleTask(int index, bool? value) {
+    if (index < 0 || index >= checklistItems.length) return;
+    setState(() {
+      checklistItems = List<TaskModel>.from(checklistItems);
+      checklistItems[index].isDone = value ?? false;
+    });
+  }
+
+  void _removeTask(int index) {
+    if (index < 0 || index >= checklistItems.length) return;
+    setState(() {
+      checklistItems = List<TaskModel>.from(checklistItems)..removeAt(index);
+    });
+  }
+
+  Widget _buildChecklistEditor() {
+    return Container(
+      margin: const EdgeInsets.only(top: 12),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: Colors.white.withOpacity(0.1)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Checklist',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: _taskController,
+                  onSubmitted: (_) => _addTask(),
+                  decoration: InputDecoration(
+                    hintText: 'Add task...',
+                    filled: true,
+                    fillColor: Colors.white.withOpacity(0.06),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 10,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              IconButton(
+                onPressed: _addTask,
+                icon: const Icon(Icons.add_circle_rounded),
+              ),
+            ],
+          ),
+          if (checklistItems.isNotEmpty) const SizedBox(height: 10),
+          ...List.generate(checklistItems.length, (index) {
+            final item = checklistItems[index];
+            return Row(
+              children: [
+                Checkbox(
+                  value: item.isDone,
+                  onChanged: (value) => _toggleTask(index, value),
+                ),
+                Expanded(
+                  child: Text(
+                    item.title,
+                    style: TextStyle(
+                      decoration:
+                          item.isDone ? TextDecoration.lineThrough : null,
+                    ),
+                  ),
+                ),
+                IconButton(
+                  onPressed: () => _removeTask(index),
+                  icon: const Icon(Icons.close_rounded, size: 18),
+                ),
+              ],
+            );
+          }),
+        ],
+      ),
+    );
   }
 
   void _showSnackBar(String message, Color color) {
@@ -310,6 +422,7 @@ class _AddNoteScreenState extends State<AddNoteScreen>
     return Scaffold(
       body: Stack(
         children: [
+          // Background gradient
           Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(
@@ -338,8 +451,10 @@ class _AddNoteScreenState extends State<AddNoteScreen>
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const SizedBox(height: 8),
+                        // Title field
                         NoteTitleField(controller: _titleController),
                         const SizedBox(height: 16),
+                        // image preview
                         if (selectedImagePaths.isNotEmpty)
                           NoteImagesSlideshow(
                             images: selectedImagePaths,
@@ -356,7 +471,9 @@ class _AddNoteScreenState extends State<AddNoteScreen>
                               }
                             },
                           ),
+
                         NoteTextField(controller: _textController),
+                        _buildChecklistEditor(),
                         if (hasAudio) _buildAudioPreviewCard(),
                         const SizedBox(height: 100),
                       ],

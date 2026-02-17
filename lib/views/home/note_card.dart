@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:memory_notes/models/note_model.dart';
+import 'package:memory_notes/models/Note_Model.dart';
 import 'package:memory_notes/views/presentation/checList/build_Checklist_widget.dart';
 import 'package:memory_notes/views/presentation/common/audio/Audio%20Player%20Widget.dart';
 import 'package:memory_notes/views/presentation/common/image/widget%20image.dart';

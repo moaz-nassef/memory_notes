@@ -1,7 +1,7 @@
 import 'task_model.dart';
 import 'package:hive/hive.dart';
 
-part 'note_model.g.dart';
+part  'Note_Model.g.dart';
 
 enum NoteType { text, image, audio, checklist, mixed }
 
@@ -84,7 +84,13 @@ class NoteModel extends HiveObject {
       createdAt: createdAt ?? this.createdAt,
       color: color ?? this.color,
       audioDurationMs: audioDurationMs ?? this.audioDurationMs,
-      checklist: checklist ?? this.checklist,
+
+      checklist:
+          checklist != null
+              ? checklist
+                  .map((e) => TaskModel(title: e['title'], isDone: e['isDone']))
+                  .toList()
+              : this.checklist,
     );
   }
 }

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:memory_notes/app_router.dart';
-import 'package:memory_notes/models/note_model.dart';
+import 'package:memory_notes/models/Note_Model.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
