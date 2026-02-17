@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:memory_notes/models/note_model.dart';
+import 'package:memory_notes/views/presentation/checList/build_Checklist_widget.dart';
 import 'package:memory_notes/views/presentation/common/audio/Audio%20Player%20Widget.dart';
 import 'package:memory_notes/views/presentation/common/image/widget%20image.dart';
 import 'package:intl/intl.dart';
@@ -99,6 +100,10 @@ class NoteCard extends StatelessWidget {
                   child: AudioPlayerWidget(note: note),
                 ),
 
+              //  Checklist
+              if (note.checklist != null &&
+                      note.checklist!.isNotEmpty)
+                    ChecklistPreview(note: note),
               const SizedBox(height: 12),
 
               //  Footer (Date + Actions)
@@ -156,10 +161,15 @@ class NoteCard extends StatelessWidget {
         icon = Icons.view_module_rounded;
         color = Colors.orange;
         break;
+      case NoteType.checklist:
+        icon = Icons.checklist_rounded;
+        color = Colors.teal;
+        break;
       default:
         icon = Icons.text_fields_rounded;
         color = Colors.green;
     }
+
 
     return Container(
       padding: const EdgeInsets.all(6),
@@ -170,7 +180,7 @@ class NoteCard extends StatelessWidget {
       child: Icon(icon, size: 18, color: color),
     );
   }
-
+  
   // 🔹 Date Formatter
   String _formatDate(DateTime date) {
     final diff = DateTime.now().difference(date);

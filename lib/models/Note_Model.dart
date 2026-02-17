@@ -1,8 +1,9 @@
+import 'task_model.dart';
 import 'package:hive/hive.dart';
 
 part 'note_model.g.dart';
 
-enum NoteType { text, image, audio, mixed }
+enum NoteType { text, image, audio, checklist, mixed }
 
 @HiveType(typeId: 0)
 class NoteModel extends HiveObject {
@@ -27,6 +28,8 @@ class NoteModel extends HiveObject {
   @HiveField(6)
   int? audioDurationMs;
 
+  @HiveField(7)
+  List<TaskModel>? checklist;
   NoteModel({
     required this.title,
     this.text,
@@ -35,24 +38,29 @@ class NoteModel extends HiveObject {
     required this.createdAt,
     required this.color,
     this.audioDurationMs,
+    this.checklist,
   });
 
   bool get hasAnyContent {
     return (text != null && text!.trim().isNotEmpty) ||
         (imagePaths != null && imagePaths!.isNotEmpty) ||
-        audioPath != null;
+        audioPath != null ||
+        (checklist != null && checklist!.isNotEmpty);
   }
 
   NoteType get type {
     final hasText = text != null && text!.trim().isNotEmpty;
     final hasImage = imagePaths != null && imagePaths!.isNotEmpty;
     final hasAudio = audioPath != null;
+    final hasChecklist = checklist != null && checklist!.isNotEmpty;
 
-    final count = [hasText, hasImage, hasAudio].where((e) => e).length;
+    final count =
+        [hasText, hasImage, hasAudio, hasChecklist].where((e) => e).length;
 
     if (count > 1) return NoteType.mixed;
     if (hasImage) return NoteType.image;
     if (hasAudio) return NoteType.audio;
+    if (hasChecklist) return NoteType.checklist;
     return NoteType.text;
   }
 
@@ -66,6 +74,7 @@ class NoteModel extends HiveObject {
     DateTime? createdAt,
     int? color,
     int? audioDurationMs,
+    List<Map<String, dynamic>>? checklist,
   }) {
     return NoteModel(
       title: title ?? this.title,
@@ -75,6 +84,7 @@ class NoteModel extends HiveObject {
       createdAt: createdAt ?? this.createdAt,
       color: color ?? this.color,
       audioDurationMs: audioDurationMs ?? this.audioDurationMs,
+      checklist: checklist ?? this.checklist,
     );
   }
 }
