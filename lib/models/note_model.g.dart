@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'Note_Model.dart';
+part of 'note_model.dart';
 
 // **************************************************************************
 // TypeAdapterGenerator
@@ -24,8 +24,7 @@ class NoteModelAdapter extends TypeAdapter<NoteModel> {
       createdAt: fields[4] as DateTime,
       color: fields[5] as int,
       audioDurationMs: fields[6] as int?,
-      checklist: (fields[7] as List?)?.cast<TaskModel>(),
-    );
+    )..rawChecklist = fields[7] as dynamic;
   }
 
   @override
@@ -47,7 +46,7 @@ class NoteModelAdapter extends TypeAdapter<NoteModel> {
       ..writeByte(6)
       ..write(obj.audioDurationMs)
       ..writeByte(7)
-      ..write(obj.checklist);
+      ..write(obj.rawChecklist);
   }
 
   @override

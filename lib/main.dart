@@ -2,13 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:memory_notes/app_router.dart';
-import 'package:memory_notes/models/Note_Model.dart';
+import 'package:memory_notes/models/note_model.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:memory_notes/models/task_model.dart';
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
 
-  Hive.registerAdapter(NoteModelAdapter());
+  if (!Hive.isAdapterRegistered(0)) {
+    Hive.registerAdapter(NoteModelAdapter());
+  }
+  if (!Hive.isAdapterRegistered(1)) {
+    Hive.registerAdapter(TaskModelAdapter());
+  }
   await Hive.openBox<NoteModel>('notesBox');
   runApp(const MyApp());
 }

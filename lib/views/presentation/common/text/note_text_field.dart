@@ -10,7 +10,7 @@ class NoteTextField extends StatelessWidget {
     return TextField(
       controller: controller,
       maxLines: null,
-      minLines: 8,
+      minLines: 4,
       style: TextStyle(
         fontSize: 20,
         height: 1.8,

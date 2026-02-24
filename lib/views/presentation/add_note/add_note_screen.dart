@@ -4,12 +4,13 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:memory_notes/manager/audio_recorder_controller.dart';
 import 'package:memory_notes/manager/audio_recorder_file_helper.dart';
-import 'package:memory_notes/models/Note_Model.dart';
+import 'package:memory_notes/models/note_model.dart';
 import 'package:memory_notes/models/task_model.dart';
+import 'package:memory_notes/views/presentation/add_note/widgets/audio_note_section.dart';
+import 'package:memory_notes/views/presentation/add_note/widgets/checklist_editor_section.dart';
 import 'package:memory_notes/views/presentation/add_note/top_Bar_AddNote.dart';
-import 'package:memory_notes/views/presentation/common/audio/Audio%20Player%20Widget.dart';
 import 'package:memory_notes/views/presentation/common/audio/buildVoiceOverlay.dart';
-import 'package:memory_notes/views/presentation/common/build_Floating_Button.dart';
+import 'package:memory_notes/views/presentation/common/build_Toolbar_Button.dart';
 import 'package:memory_notes/views/presentation/common/color/color_picker_sheet.dart';
 import 'package:memory_notes/views/presentation/common/image/Image_Picker_Page.dart';
 import 'package:memory_notes/views/presentation/common/image/note_image_preview.dart';
@@ -233,7 +234,7 @@ class _AddNoteScreenState extends State<AddNoteScreen>
     if (!isValid) {
       _showSnackBar(
         'Add a title and at least one content type',
-        Colors.orange.withOpacity(.5),
+        Colors.orange.withValues(alpha: 0.5),
       );
       return;
     }
@@ -283,80 +284,6 @@ class _AddNoteScreenState extends State<AddNoteScreen>
     });
   }
 
-  Widget _buildChecklistEditor() {
-    return Container(
-      margin: const EdgeInsets.only(top: 12),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.05),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.white.withOpacity(0.1)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Checklist',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
-          ),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  controller: _taskController,
-                  onSubmitted: (_) => _addTask(),
-                  decoration: InputDecoration(
-                    hintText: 'Add task...',
-                    filled: true,
-                    fillColor: Colors.white.withOpacity(0.06),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 10,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              IconButton(
-                onPressed: _addTask,
-                icon: const Icon(Icons.add_circle_rounded),
-              ),
-            ],
-          ),
-          if (checklistItems.isNotEmpty) const SizedBox(height: 10),
-          ...List.generate(checklistItems.length, (index) {
-            final item = checklistItems[index];
-            return Row(
-              children: [
-                Checkbox(
-                  value: item.isDone,
-                  onChanged: (value) => _toggleTask(index, value),
-                ),
-                Expanded(
-                  child: Text(
-                    item.title,
-                    style: TextStyle(
-                      decoration:
-                          item.isDone ? TextDecoration.lineThrough : null,
-                    ),
-                  ),
-                ),
-                IconButton(
-                  onPressed: () => _removeTask(index),
-                  icon: const Icon(Icons.close_rounded, size: 18),
-                ),
-              ],
-            );
-          }),
-        ],
-      ),
-    );
-  }
-
   void _showSnackBar(String message, Color color) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -375,50 +302,12 @@ class _AddNoteScreenState extends State<AddNoteScreen>
     );
   }
 
-  Widget _buildAudioPreviewCard() {
-    final path = recordedAudioPath;
-    if (path == null) return const SizedBox.shrink();
-
-    final previewNote = NoteModel(
-      title: 'Audio Preview',
-      audioPath: path,
-      audioDurationMs: recordedAudioDurationMs,
-      createdAt: DateTime.now(),
-      color: selectedColor.toARGB32(),
-    );
-
-    return Stack(
-      children: [
-        AudioPlayerWidget(note: previewNote),
-        Positioned(
-          top: 8,
-          right: 8,
-          child: Material(
-            color: Colors.transparent,
-            child: InkWell(
-              borderRadius: BorderRadius.circular(20),
-              onTap: _removeAudio,
-              child: Container(
-                padding: const EdgeInsets.all(6),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.85),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.close_rounded,
-                  size: 18,
-                  color: Colors.red,
-                ),
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
+    return addNoteWidget(context);
+  }
+
+  Scaffold addNoteWidget(BuildContext context) {
     return Scaffold(
       body: Stack(
         children: [
@@ -431,30 +320,40 @@ class _AddNoteScreenState extends State<AddNoteScreen>
                 colors: [
                   selectedColor.withOpacity(0.15),
                   const Color.fromARGB(255, 5, 5, 5),
-                  selectedColor.withOpacity(0.05),
+                  selectedColor.withValues(alpha: 0.05),
                 ],
               ),
             ),
           ),
+
           SafeArea(
             child: Column(
               children: [
+                // Top Bar
                 TopBarAddnote(
                   saveNote: _saveNote,
                   selectedColor: selectedColor,
                   title: widget.initialNote == null ? 'New Note' : 'Edit Note',
                 ),
+
+                // Main Content with proper padding
                 Expanded(
                   child: SingleChildScrollView(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    padding: const EdgeInsets.only(
+                      left: 20,
+                      right: 20,
+                      bottom: 120, // ✅ Space for bottom toolbar
+                    ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const SizedBox(height: 8),
+
                         // Title field
                         NoteTitleField(controller: _titleController),
                         const SizedBox(height: 16),
-                        // image preview
+
+                        // Image preview
                         if (selectedImagePaths.isNotEmpty)
                           NoteImagesSlideshow(
                             images: selectedImagePaths,
@@ -472,10 +371,30 @@ class _AddNoteScreenState extends State<AddNoteScreen>
                             },
                           ),
 
+                        // Text field
                         NoteTextField(controller: _textController),
-                        _buildChecklistEditor(),
-                        if (hasAudio) _buildAudioPreviewCard(),
-                        const SizedBox(height: 100),
+
+                        // Audio preview
+                        if (hasAudio)
+                          AddNoteAudioPreview(
+                            audioPath: recordedAudioPath,
+                            audioDurationMs: recordedAudioDurationMs,
+                            selectedColor: selectedColor,
+                            onRemoveAudio: _removeAudio,
+                          ),
+
+                        const SizedBox(height: 10),
+
+                        // Checklist
+                        ChecklistEditorSection(
+                          taskController: _taskController,
+                          checklistItems: checklistItems,
+                          onAddTask: _addTask,
+                          onToggleTask: _toggleTask,
+                          onRemoveTask: _removeTask,
+                        ),
+
+                        const SizedBox(height: 24),
                       ],
                     ),
                   ),
@@ -483,107 +402,121 @@ class _AddNoteScreenState extends State<AddNoteScreen>
               ],
             ),
           ),
+
+          // ✅ PROFESSIONAL BOTTOM TOOLBAR
           Positioned(
-            bottom: 24,
-            right: 24,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                FloatingButton(
-                  icon: Icons.palette_rounded,
-                  color: selectedColor,
-                  onTap: () {
-                    setState(() => showColorPicker = !showColorPicker);
-                  },
+            bottom: 0,
+            left: 0,
+            right: 0,
+
+            child: Container(
+              decoration: BoxDecoration(
+                // color: Colors.white.withOpacity(0.95),
+                color: Colors.black.withOpacity(0.0000000001),
+
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(25),
                 ),
-                const SizedBox(height: 12),
-                FloatingButton(
-                  icon: Icons.image_rounded,
-                  color: Colors.blue,
-                  onTap: () async {
-                    final images = await Navigator.push<List<File>>(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const ImagePickerPage(),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 20,
+                    offset: const Offset(0, -5),
+                  ),
+                ],
+              ),
+              child: SafeArea(
+                top: false,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 12,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      // Color Picker Button
+                      BuildToolbarButton(
+                        icon: Icons.palette_rounded,
+                        label: 'Color',
+                        color: selectedColor,
+                        onTap: () {
+                          setState(() => showColorPicker = !showColorPicker);
+                        },
                       ),
-                    );
-                    if (images != null && images.isNotEmpty) {
-                      setState(() {
-                        selectedImagePaths = images.map((f) => f.path).toList();
-                      });
-                    }
-                  },
-                ),
-                const SizedBox(height: 12),
-                GestureDetector(
-                  onTap: () {
-                    if (hasAudio) {
-                      _removeAudio();
-                    } else {
-                      _showSnackBar(
-                        'Long press to start recording',
-                        Colors.purple,
-                      );
-                    }
-                  },
-                  onLongPressStart: (_) {
-                    _startVoiceRecording();
-                  },
-                  onLongPressMoveUpdate: (details) {
-                    setState(() {
-                      dragOffset = details.offsetFromOrigin;
-                    });
-                  },
-                  onLongPressEnd: (_) {
-                    _endVoiceRecording();
-                  },
-                  child: AnimatedScale(
-                    scale: isRecording ? 1.3 : 1.0,
-                    duration: const Duration(milliseconds: 200),
-                    child: AnimatedBuilder(
-                      animation: _pulseController,
-                      builder: (context, child) {
-                        return Container(
-                          width: 60,
-                          height: 60,
-                          decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [Colors.purple, Colors.deepPurple],
+
+                      // Image Picker Button
+                      BuildToolbarButton(
+                        icon: Icons.image_rounded,
+                        label: 'Image',
+                        color: Colors.blue,
+                        onTap: () async {
+                          final images = await Navigator.push<List<File>>(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const ImagePickerPage(),
                             ),
-                            shape: BoxShape.circle,
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.purple.withOpacity(
-                                  isRecording ? 0.6 : 0.5,
-                                ),
-                                blurRadius:
-                                    isRecording
-                                        ? 25 + (15 * _pulseController.value)
-                                        : 20,
-                                offset: const Offset(0, 10),
-                                spreadRadius:
-                                    isRecording
-                                        ? 3 + (5 * _pulseController.value)
-                                        : 0,
-                              ),
-                            ],
+                          );
+                          if (images != null && images.isNotEmpty) {
+                            setState(() {
+                              selectedImagePaths =
+                                  images.map((f) => f.path).toList();
+                            });
+                          }
+                        },
+                      ),
+
+                      // Audio Recorder Button
+                      GestureDetector(
+                        onTap: () {
+                          if (hasAudio) {
+                            _removeAudio();
+                          } else {
+                            _showSnackBar(
+                              'Long press to record',
+                              Colors.purple,
+                            );
+                          }
+                        },
+                        onLongPressStart: (_) => _startVoiceRecording(),
+                        onLongPressMoveUpdate: (details) {
+                          setState(() {
+                            dragOffset = details.offsetFromOrigin;
+                          });
+                        },
+                        onLongPressEnd: (_) => _endVoiceRecording(),
+                        child: AnimatedScale(
+                          scale: isRecording ? 1.1 : 1.0,
+                          duration: const Duration(milliseconds: 200),
+                          child: AnimatedBuilder(
+                            animation: _pulseController,
+                            builder: (context, child) {
+                              return BuildToolbarButton(
+                                icon:
+                                    hasAudio
+                                        ? Icons.mic
+                                        : Icons.mic_none_rounded,
+                                label: 'Audio',
+                                color: Colors.purple,
+                                onTap: () {}, // Handled by GestureDetector
+                                isRecording: isRecording,
+                                pulseValue: _pulseController.value,
+                              );
+                            },
                           ),
-                          child: Icon(
-                            hasAudio ? Icons.mic : Icons.mic_none_rounded,
-                            color: Colors.white,
-                            size: 28,
-                          ),
-                        );
-                      },
-                    ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ],
+              ),
             ),
           ),
+
+          // Color Picker Sheet
           if (showColorPicker)
             Positioned(
-              bottom: 0,
+              bottom: 90, // ✅ Above toolbar
               left: 0,
               right: 0,
               child: ColorPickerSheet(
@@ -598,6 +531,8 @@ class _AddNoteScreenState extends State<AddNoteScreen>
                 onClose: () => setState(() => showColorPicker = false),
               ),
             ),
+
+          // Voice Recording Overlay
           if (showVoiceOverlay)
             Positioned.fill(
               child: BuildVoiceOverlay(

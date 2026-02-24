@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:memory_notes/models/Note_Model.dart';
+import 'package:memory_notes/models/note_model.dart';
 
 class ChecklistPreview extends StatefulWidget {
   final NoteModel note;
@@ -50,7 +50,7 @@ class _ChecklistPreviewState extends State<ChecklistPreview> {
                 'Tasks',
                 style: TextStyle(
                   fontWeight: FontWeight.w700,
-                  color: Colors.grey[900],
+                  color: const Color.fromARGB(255, 187, 106, 83),
                 ),
               ),
               const Spacer(),
@@ -80,7 +80,10 @@ class _ChecklistPreviewState extends State<ChecklistPreview> {
                   child: Text(
                     item.title,
                     style: TextStyle(
-                      color: item.isDone ? Colors.grey[600] : Colors.grey[900],
+                      color:
+                          item.isDone
+                              ? const Color.fromARGB(255, 87, 255, 96)
+                              : const Color.fromARGB(255, 247, 216, 216),
                       decoration:
                           item.isDone ? TextDecoration.lineThrough : null,
                     ),

@@ -1,7 +1,7 @@
 import 'task_model.dart';
 import 'package:hive/hive.dart';
 
-part  'Note_Model.g.dart';
+part 'note_model.g.dart';
 
 enum NoteType { text, image, audio, checklist, mixed }
 
@@ -29,7 +29,28 @@ class NoteModel extends HiveObject {
   int? audioDurationMs;
 
   @HiveField(7)
-  List<TaskModel>? checklist;
+  dynamic rawChecklist;
+
+  List<TaskModel>? get checklist {
+    if (rawChecklist == null) return null;
+    if (rawChecklist is List) {
+      return rawChecklist!.map<TaskModel>((item) {
+        if (item is TaskModel) return item;
+        if (item is Map) {
+          final title = (item['title'] ?? '').toString();
+          final isDone = item['isDone'] == true || item['done'] == true;
+          return TaskModel(title: title, isDone: isDone);
+        }
+        return TaskModel(title: item.toString(), isDone: false);
+      }).toList();
+    }
+    return null;
+  }
+
+  set checklist(List<TaskModel>? value) {
+    rawChecklist = value;
+  }
+
   NoteModel({
     required this.title,
     this.text,
@@ -38,8 +59,8 @@ class NoteModel extends HiveObject {
     required this.createdAt,
     required this.color,
     this.audioDurationMs,
-    this.checklist,
-  });
+    List<TaskModel>? checklist,
+  }) : rawChecklist = checklist;
 
   bool get hasAnyContent {
     return (text != null && text!.trim().isNotEmpty) ||
@@ -74,7 +95,7 @@ class NoteModel extends HiveObject {
     DateTime? createdAt,
     int? color,
     int? audioDurationMs,
-    List<Map<String, dynamic>>? checklist,
+    List<TaskModel>? checklist,
   }) {
     return NoteModel(
       title: title ?? this.title,
@@ -84,13 +105,7 @@ class NoteModel extends HiveObject {
       createdAt: createdAt ?? this.createdAt,
       color: color ?? this.color,
       audioDurationMs: audioDurationMs ?? this.audioDurationMs,
-
-      checklist:
-          checklist != null
-              ? checklist
-                  .map((e) => TaskModel(title: e['title'], isDone: e['isDone']))
-                  .toList()
-              : this.checklist,
+      checklist: checklist ?? this.checklist,
     );
   }
 }

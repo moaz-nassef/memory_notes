@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:memory_notes/models/Note_Model.dart';
-import 'package:memory_notes/views/presentation/checList/build_Checklist_widget.dart';
+import 'package:memory_notes/models/note_model.dart';
+import 'package:memory_notes/views/presentation/common/checList/build_Checklist_widget.dart';
 import 'package:memory_notes/views/presentation/common/audio/Audio%20Player%20Widget.dart';
 import 'package:memory_notes/views/presentation/common/image/widget%20image.dart';
 import 'package:intl/intl.dart';
@@ -92,6 +92,7 @@ class NoteCard extends StatelessWidget {
                     ),
                   ),
                 ),
+              const SizedBox(height: 8),
 
               //  Audio
               if (note.audioPath != null)
@@ -99,11 +100,11 @@ class NoteCard extends StatelessWidget {
                   padding: const EdgeInsets.only(top: 8),
                   child: AudioPlayerWidget(note: note),
                 ),
+              const SizedBox(height: 14),
 
               //  Checklist
-              if (note.checklist != null &&
-                      note.checklist!.isNotEmpty)
-                    ChecklistPreview(note: note),
+              if (note.checklist != null && note.checklist!.isNotEmpty)
+                ChecklistPreview(note: note),
               const SizedBox(height: 12),
 
               //  Footer (Date + Actions)
@@ -170,7 +171,6 @@ class NoteCard extends StatelessWidget {
         color = Colors.green;
     }
 
-
     return Container(
       padding: const EdgeInsets.all(6),
       decoration: BoxDecoration(
@@ -180,7 +180,7 @@ class NoteCard extends StatelessWidget {
       child: Icon(icon, size: 18, color: color),
     );
   }
-  
+
   // 🔹 Date Formatter
   String _formatDate(DateTime date) {
     final diff = DateTime.now().difference(date);
