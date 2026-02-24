@@ -22,7 +22,7 @@ class BuildVoiceOverlay extends StatelessWidget {
     final isNearSend = dragOffset.dy < -50;
 
     return Container(
-      color: Colors.black.withOpacity(0.4),
+      color: Colors.black.withValues(alpha: 0.4),
       child: Stack(
         children: [
           Positioned(
@@ -44,7 +44,7 @@ class BuildVoiceOverlay extends StatelessWidget {
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.purple.withOpacity(0.6),
+                      color: Colors.purple.withValues(alpha: 0.6),
                       blurRadius: 25 + (15 * pulseController.value),
                       spreadRadius: 3 + (5 * pulseController.value),
                       offset: const Offset(0, 10),
@@ -70,15 +70,15 @@ class BuildVoiceOverlay extends StatelessWidget {
                       vertical: 16,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.95),
+                      color: Colors.white.withValues(alpha: 0.95),
                       borderRadius: BorderRadius.circular(25),
                       border: Border.all(
-                        color: Colors.white.withOpacity(0.6),
+                        color: Colors.white.withValues(alpha: 0.6),
                         width: 2,
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.purple.withOpacity(0.3),
+                          color: Colors.purple.withValues(alpha: 0.3),
                           blurRadius: 25,
                           offset: const Offset(0, 10),
                         ),
@@ -98,7 +98,7 @@ class BuildVoiceOverlay extends StatelessWidget {
                                 shape: BoxShape.circle,
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.red.withOpacity(
+                                    color: Colors.red.withValues(alpha: 
                                       0.6 * (1 - pulseController.value),
                                     ),
                                     blurRadius: 10 * pulseController.value,
@@ -140,8 +140,8 @@ class BuildVoiceOverlay extends StatelessWidget {
                   end: Alignment.centerRight,
                   colors: [
                     isNearDelete
-                        ? Colors.red.withOpacity(0.9)
-                        : Colors.red.withOpacity(0.6),
+                        ? Colors.red.withValues(alpha: 0.9)
+                        : Colors.red.withValues(alpha: 0.6),
                     Colors.transparent,
                   ],
                   stops: const [0.0, 0.4],
@@ -160,7 +160,7 @@ class BuildVoiceOverlay extends StatelessWidget {
                       duration: const Duration(milliseconds: 200),
                       padding: EdgeInsets.all(isNearDelete ? 16 : 14),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(
+                        color: Colors.white.withValues(alpha: 
                           isNearDelete ? 1.0 : 0.9,
                         ),
                         shape: BoxShape.circle,
@@ -168,7 +168,7 @@ class BuildVoiceOverlay extends StatelessWidget {
                             isNearDelete
                                 ? [
                                   BoxShadow(
-                                    color: Colors.red.withOpacity(0.5),
+                                    color: Colors.red.withValues(alpha: 0.5),
                                     blurRadius: 20,
                                     spreadRadius: 5,
                                   ),
@@ -221,7 +221,7 @@ class BuildVoiceOverlay extends StatelessWidget {
                     end: Alignment.topCenter,
                     colors: [
                       Colors.transparent,
-                      Colors.green.withOpacity(isNearSend ? 0.9 : 0.6),
+                      Colors.green.withValues(alpha: isNearSend ? 0.9 : 0.6),
                     ],
                   ),
                   borderRadius: const BorderRadius.only(
@@ -237,13 +237,13 @@ class BuildVoiceOverlay extends StatelessWidget {
                       duration: const Duration(milliseconds: 200),
                       padding: EdgeInsets.all(isNearSend ? 16 : 14),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(isNearSend ? 1.0 : 0.9),
+                        color: Colors.white.withValues(alpha: isNearSend ? 1.0 : 0.9),
                         shape: BoxShape.circle,
                         boxShadow:
                             isNearSend
                                 ? [
                                   BoxShadow(
-                                    color: Colors.green.withOpacity(0.5),
+                                    color: Colors.green.withValues(alpha: 0.5),
                                     blurRadius: 20,
                                     spreadRadius: 5,
                                   ),
@@ -259,7 +259,7 @@ class BuildVoiceOverlay extends StatelessWidget {
                     const SizedBox(height: 16),
                     Icon(
                       Icons.keyboard_double_arrow_up_rounded,
-                      color: Colors.white.withOpacity(0.9),
+                      color: Colors.white.withValues(alpha: 0.9),
                       size: 36,
                     ),
                     if (isNearSend)
@@ -325,7 +325,7 @@ class _RecordingWaveform extends StatelessWidget {
                     decoration: BoxDecoration(
                       color:
                           isSilent
-                              ? Colors.purple.withOpacity(0.55)
+                              ? Colors.purple.withValues(alpha: 0.55)
                               : Colors.deepPurple,
                       borderRadius: BorderRadius.circular(isSilent ? 8 : 2),
                     ),

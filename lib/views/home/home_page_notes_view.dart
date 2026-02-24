@@ -4,7 +4,7 @@ import 'package:hive_flutter/adapters.dart';
 import 'package:memory_notes/app_router.dart';
 import 'package:memory_notes/manager/audio_recorder_file_helper.dart';
 import 'package:memory_notes/models/note_model.dart';
-import 'package:memory_notes/views/home/Header.dart';
+import 'package:memory_notes/views/home/header.dart';
 import 'package:memory_notes/views/home/note_card.dart';
 import 'package:memory_notes/views/presentation/add_note/add_note_screen.dart';
 

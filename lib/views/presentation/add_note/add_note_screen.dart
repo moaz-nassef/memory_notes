@@ -9,10 +9,10 @@ import 'package:memory_notes/models/task_model.dart';
 import 'package:memory_notes/views/presentation/add_note/widgets/audio_note_section.dart';
 import 'package:memory_notes/views/presentation/add_note/widgets/checklist_editor_section.dart';
 import 'package:memory_notes/views/presentation/add_note/top_Bar_AddNote.dart';
-import 'package:memory_notes/views/presentation/common/audio/buildVoiceOverlay.dart';
-import 'package:memory_notes/views/presentation/common/build_Toolbar_Button.dart';
+import 'package:memory_notes/views/presentation/common/audio/build_voice_overlay.dart';
+import 'package:memory_notes/views/presentation/common/build_toolbar_button.dart';
 import 'package:memory_notes/views/presentation/common/color/color_picker_sheet.dart';
-import 'package:memory_notes/views/presentation/common/image/Image_Picker_Page.dart';
+import 'package:memory_notes/views/presentation/common/image/image_picker_page.dart';
 import 'package:memory_notes/views/presentation/common/image/note_image_preview.dart';
 import 'package:memory_notes/views/presentation/common/text/note_text_field.dart';
 import 'package:memory_notes/views/presentation/common/text/note_title_field.dart';
@@ -318,7 +318,7 @@ class _AddNoteScreenState extends State<AddNoteScreen>
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  selectedColor.withOpacity(0.15),
+                  selectedColor.withValues(alpha: 0.15),
                   const Color.fromARGB(255, 5, 5, 5),
                   selectedColor.withValues(alpha: 0.05),
                 ],
@@ -411,15 +411,15 @@ class _AddNoteScreenState extends State<AddNoteScreen>
 
             child: Container(
               decoration: BoxDecoration(
-                // color: Colors.white.withOpacity(0.95),
-                color: Colors.black.withOpacity(0.0000000001),
+                // color: Colors.white.withValues(alpha: 0.95),
+                color: Colors.black.withValues(alpha: 0.0000000001),
 
                 borderRadius: const BorderRadius.vertical(
                   top: Radius.circular(25),
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
+                    color: Colors.black.withValues(alpha: 0.1),
                     blurRadius: 20,
                     offset: const Offset(0, -5),
                   ),

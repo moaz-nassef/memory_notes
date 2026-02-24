@@ -19,7 +19,7 @@ class ColorPickerSheet extends StatelessWidget {
     return GestureDetector(
       onTap: onClose,
       child: Container(
-        color: Colors.black.withOpacity(0.3),
+        color: Colors.black.withValues(alpha: 0.3),
         child: GestureDetector(
           onTap: () {},
           child: Container(
@@ -87,7 +87,7 @@ class ColorPickerSheet extends StatelessWidget {
                                             : null,
                                     boxShadow: [
                                       BoxShadow(
-                                        color: color.withOpacity(0.5),
+                                        color: color.withValues(alpha: 0.5),
                                         blurRadius: 15,
                                         offset: const Offset(0, 5),
                                       ),

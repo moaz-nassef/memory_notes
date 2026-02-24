@@ -65,12 +65,12 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            Colors.purple.withOpacity(0.1),
-            Colors.purple.withOpacity(0.05),
+            Colors.purple.withValues(alpha: 0.1),
+            Colors.purple.withValues(alpha: 0.05),
           ],
         ),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.purple.withOpacity(0.3), width: 1.5),
+        border: Border.all(color: Colors.purple.withValues(alpha: 0.3), width: 1.5),
       ),
       child: Row(
         children: [
@@ -91,7 +91,7 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget>
                         ? [
                             BoxShadow(
                               color: Colors.purple
-                                  .withOpacity(0.5 * _pulseController.value),
+                                  .withValues(alpha: 0.5 * _pulseController.value),
                               blurRadius: 20,
                               spreadRadius: 5,
                             ),

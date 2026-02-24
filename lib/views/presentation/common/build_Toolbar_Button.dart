@@ -30,21 +30,21 @@ class BuildToolbarButton extends StatelessWidget {
             width: 56,
             height: 56,
             decoration: BoxDecoration(
-              color: color.withOpacity(0.15),
+              color: color.withValues(alpha: 0.15),
               shape: BoxShape.circle,
-              border: Border.all(color: color.withOpacity(0.3), width: 2),
+              border: Border.all(color: color.withValues(alpha: 0.3), width: 2),
               boxShadow:
                   isRecording
                       ? [
                         BoxShadow(
-                          color: color.withOpacity(0.4 * (1 - pulseValue)),
+                          color: color.withValues(alpha: 0.4 * (1 - pulseValue)),
                           blurRadius: 15 + (10 * pulseValue),
                           spreadRadius: 3 * pulseValue,
                         ),
                       ]
                       : [
                         BoxShadow(
-                          color: color.withOpacity(0.2),
+                          color: color.withValues(alpha: 0.2),
                           blurRadius: 8,
                           offset: const Offset(0, 4),
                         ),

@@ -16,13 +16,13 @@ class NoteAudioBadge extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            Colors.purple.withOpacity(0.05),
-            Colors.purple.withOpacity(0.15),
+            Colors.purple.withValues(alpha: 0.05),
+            Colors.purple.withValues(alpha: 0.15),
           ],
         ),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: Colors.purple.withOpacity(0.3),
+          color: Colors.purple.withValues(alpha: 0.3),
           width: 2,
         ),
       ),
@@ -35,15 +35,15 @@ class NoteAudioBadge extends StatelessWidget {
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  Colors.purple.withOpacity(0.5),
-                  Colors.purple.withOpacity(1),
-                  Colors.purple.withOpacity(0.5),
+                  Colors.purple.withValues(alpha: 0.5),
+                  Colors.purple.withValues(alpha: 1),
+                  Colors.purple.withValues(alpha: 0.5),
                 ],
               ),
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.purple.withOpacity(0.4),
+                  color: Colors.purple.withValues(alpha: 0.4),
                   blurRadius: 20,
                   offset: const Offset(0, 10),
                   spreadRadius: 1,

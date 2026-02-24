@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:memory_notes/models/note_model.dart';
-import 'package:memory_notes/views/presentation/common/audio/Audio%20Player%20Widget.dart';
+import 'package:memory_notes/views/presentation/common/audio/audio_player_widget.dart';
+
 
 class AddNoteAudioPreview extends StatelessWidget {
   const AddNoteAudioPreview({
@@ -43,7 +44,7 @@ class AddNoteAudioPreview extends StatelessWidget {
               child: Container(
                 padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.85),
+                  color: Colors.white.withValues(alpha: 0.85),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
@@ -103,7 +104,7 @@ class AddNoteAudioRecordButton extends StatelessWidget {
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.purple.withOpacity(isRecording ? 0.6 : 0.5),
+                    color: Colors.purple.withValues(alpha: isRecording ? 0.6 : 0.5),
                     blurRadius:
                         isRecording ? 25 + (15 * pulseController.value) : 20,
                     offset: const Offset(0, 10),

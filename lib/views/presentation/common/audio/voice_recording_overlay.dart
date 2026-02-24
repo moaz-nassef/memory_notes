@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:memory_notes/views/presentation/common/audio/buildVoiceOverlay.dart';
+import 'package:memory_notes/views/presentation/common/audio/build_voice_overlay.dart';
 
 class AudioRecorderView extends StatelessWidget {
   const AudioRecorderView({

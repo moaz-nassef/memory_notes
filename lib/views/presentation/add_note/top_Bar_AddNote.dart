@@ -24,15 +24,15 @@ class TopBarAddnote extends StatelessWidget {
           child: Container(
             padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.03),
+              color: Colors.white.withValues(alpha: 0.03),
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                color: Colors.white.withOpacity(0.05),
+                color: Colors.white.withValues(alpha: 0.05),
                 width: 1.5,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: selectedColor.withOpacity(0.2),
+                  color: selectedColor.withValues(alpha: 0.2),
                   blurRadius: 20,
                   offset: Offset(0, 10),
                 ),

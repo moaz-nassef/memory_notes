@@ -17,7 +17,7 @@ class NoteTitleField extends StatelessWidget {
         fontWeight: FontWeight.bold,
       ),
       decoration: InputDecoration(
-        fillColor: Colors.white.withOpacity(0.009),
+        fillColor: Colors.white.withValues(alpha: 0.009),
         filled: true,
         hintText: '✨ title...',
         hintStyle: TextStyle(
