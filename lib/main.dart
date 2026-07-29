@@ -1,41 +1,61 @@
 import 'package:flutter/material.dart';
-import 'package:hive/hive.dart';
-import 'package:hive_flutter/adapters.dart';
-import 'package:memory_notes/app_router.dart';
-import 'package:memory_notes/models/note_model.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:memory_notes/app_router.dart';
+import 'package:memory_notes/core/constants/hive_keys.dart';
+import 'package:memory_notes/core/di_container.dart';
+import 'package:memory_notes/core/theme/app_theme.dart';
+import 'package:memory_notes/features/connectivity/cubit/connectivity_cubit.dart';
+import 'package:memory_notes/features/notes/cubit/notes_cubit.dart';
+import 'package:memory_notes/models/note_model.dart';
 import 'package:memory_notes/models/task_model.dart';
-
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
 
-  if (!Hive.isAdapterRegistered(0)) {
+  if (!Hive.isAdapterRegistered(HiveKeys.noteModelTypeId)) {
     Hive.registerAdapter(NoteModelAdapter());
   }
-  if (!Hive.isAdapterRegistered(1)) {
+  if (!Hive.isAdapterRegistered(HiveKeys.taskModelTypeId)) {
     Hive.registerAdapter(TaskModelAdapter());
   }
-  await Hive.openBox<NoteModel>('notesBox');
-  runApp(const MyApp());
-}
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  await Hive.openBox<NoteModel>(HiveKeys.notesBox);
+  final settingsBox = await Hive.openBox<dynamic>(HiveKeys.settingsBox);
 
-  // This widget is the root of your application.
+  initDi();
+
+  final seenOnboarding =
+      settingsBox.get(HiveKeys.seenOnboarding, defaultValue: false) as bool;
+
+  runApp(
+    MyApp(
+      initialRoute: seenOnboarding ? AppRoutes.notesList : AppRoutes.onboarding,
+    ),
+  );
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key, this.initialRoute = AppRoutes.notesList});
+
+  final String initialRoute;
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        brightness: Brightness.dark,
-
-        // colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<NotesCubit>(create: (_) => sl<NotesCubit>()..watchNotes()),
+        BlocProvider<ConnectivityCubit>(
+          create: (_) => sl<ConnectivityCubit>()..watchConnectivity(),
+        ),
+      ],
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: 'Memory Notes',
+        theme: AppTheme.dark,
+        initialRoute: initialRoute,
+        onGenerateRoute: AppRouter.onGenerateRoute,
       ),
-      initialRoute: AppRoutes.notesList,
-      onGenerateRoute: AppRouter.onGenerateRoute,
     );
   }
 }

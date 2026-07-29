@@ -90,7 +90,7 @@ class NoteModel extends HiveObject {
   NoteModel copyWith({
     String? title,
     String? text,
-    String? imagePath,
+    List<String>? imagePaths,
     String? audioPath,
     DateTime? createdAt,
     int? color,
@@ -100,7 +100,7 @@ class NoteModel extends HiveObject {
     return NoteModel(
       title: title ?? this.title,
       text: text ?? this.text,
-      imagePaths: imagePath != null ? [imagePath] : this.imagePaths,
+      imagePaths: imagePaths ?? this.imagePaths,
       audioPath: audioPath ?? this.audioPath,
       createdAt: createdAt ?? this.createdAt,
       color: color ?? this.color,

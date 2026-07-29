@@ -16,10 +16,7 @@ class TaskModelAdapter extends TypeAdapter<TaskModel> {
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
-    return TaskModel(
-      title: fields[0] as String,
-      isDone: fields[1] as bool,
-    );
+    return TaskModel(title: fields[0] as String, isDone: fields[1] as bool);
   }
 
   @override
