@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:memory_notes/core/constants/app_colors.dart';
 
 class BuildVoiceOverlay extends StatelessWidget {
   const BuildVoiceOverlay({
@@ -38,13 +39,11 @@ class BuildVoiceOverlay extends StatelessWidget {
                 width: 60,
                 height: 60,
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [Colors.purple, Colors.deepPurple],
-                  ),
+                  gradient: AppColors.primaryGradient,
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.purple.withValues(alpha: 0.6),
+                      color: AppColors.primary.withValues(alpha: 0.6),
                       blurRadius: 25 + (15 * pulseController.value),
                       spreadRadius: 3 + (5 * pulseController.value),
                       offset: const Offset(0, 10),
@@ -70,15 +69,15 @@ class BuildVoiceOverlay extends StatelessWidget {
                       vertical: 16,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.95),
+                      color: AppColors.surfaceLight.withValues(alpha: 0.9),
                       borderRadius: BorderRadius.circular(25),
                       border: Border.all(
-                        color: Colors.white.withValues(alpha: 0.6),
-                        width: 2,
+                        color: AppColors.primary.withValues(alpha: 0.4),
+                        width: 1.5,
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.purple.withValues(alpha: 0.3),
+                          color: AppColors.primary.withValues(alpha: 0.3),
                           blurRadius: 25,
                           offset: const Offset(0, 10),
                         ),
@@ -112,10 +111,10 @@ class BuildVoiceOverlay extends StatelessWidget {
                         const SizedBox(width: 14),
                         Text(
                           _formatDuration(recordingDurationMs),
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
-                            color: Colors.grey[900],
+                            color: AppColors.textPrimary,
                           ),
                         ),
                         const SizedBox(width: 16),
@@ -327,8 +326,8 @@ class _RecordingWaveform extends StatelessWidget {
                     decoration: BoxDecoration(
                       color:
                           isSilent
-                              ? Colors.purple.withValues(alpha: 0.55)
-                              : Colors.deepPurple,
+                              ? AppColors.primary.withValues(alpha: 0.4)
+                              : AppColors.accent,
                       borderRadius: BorderRadius.circular(isSilent ? 8 : 2),
                     ),
                   ),

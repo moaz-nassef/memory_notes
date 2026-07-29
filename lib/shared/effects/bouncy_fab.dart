@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:memory_notes/core/constants/app_colors.dart';
 
 /// A FAB that squishes and wiggles when pressed — pure joy in
 /// button form. Drop-in replacement for [FloatingActionButton].
@@ -32,20 +33,44 @@ class _BouncyFabState extends State<BouncyFab>
       duration: const Duration(milliseconds: 350),
     );
 
-    final curved = CurvedAnimation(
-      parent: _controller,
-      curve: Curves.elasticOut,
-    );
+    // NOTE: the curves live *inside* each sequence item — wrapping the
+    // whole TweenSequence in Curves.elasticOut would feed it values > 1
+    // (elastic overshoot) and trip its `t <= 1.0` assertion.
+    //
     // Squish down, then spring back.
     _scale = TweenSequence<double>([
-      TweenSequenceItem(tween: Tween(begin: 1, end: 0.85), weight: 30),
-      TweenSequenceItem(tween: Tween(begin: 0.85, end: 1), weight: 70),
-    ]).animate(curved);
+      TweenSequenceItem(
+        tween: Tween(
+          begin: 1.0,
+          end: 0.85,
+        ).chain(CurveTween(curve: Curves.easeIn)),
+        weight: 30,
+      ),
+      TweenSequenceItem(
+        tween: Tween(
+          begin: 0.85,
+          end: 1.0,
+        ).chain(CurveTween(curve: Curves.elasticOut)),
+        weight: 70,
+      ),
+    ]).animate(_controller);
     // Little wiggle while it springs back.
     _rotation = TweenSequence<double>([
-      TweenSequenceItem(tween: Tween(begin: 0, end: -0.08), weight: 30),
-      TweenSequenceItem(tween: Tween(begin: -0.08, end: 0), weight: 70),
-    ]).animate(curved);
+      TweenSequenceItem(
+        tween: Tween(
+          begin: 0.0,
+          end: -0.08,
+        ).chain(CurveTween(curve: Curves.easeIn)),
+        weight: 30,
+      ),
+      TweenSequenceItem(
+        tween: Tween(
+          begin: -0.08,
+          end: 0.0,
+        ).chain(CurveTween(curve: Curves.elasticOut)),
+        weight: 70,
+      ),
+    ]).animate(_controller);
   }
 
   @override
@@ -61,17 +86,45 @@ class _BouncyFabState extends State<BouncyFab>
 
   @override
   Widget build(BuildContext context) {
+    final glowColor = widget.backgroundColor ?? AppColors.primary;
+
     return ScaleTransition(
       scale: _scale,
       child: RotationTransition(
         turns: _rotation,
-        child: FloatingActionButton(
-          onPressed: _handleTap,
-          backgroundColor: widget.backgroundColor,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(25),
+        child: Material(
+          color: Colors.transparent,
+          borderRadius: BorderRadius.circular(20),
+          clipBehavior: Clip.antiAlias,
+          child: InkWell(
+            onTap: _handleTap,
+            child: Ink(
+              width: 60,
+              height: 60,
+              decoration: BoxDecoration(
+                gradient:
+                    widget.backgroundColor == null
+                        ? AppColors.primaryGradient
+                        : LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            widget.backgroundColor!,
+                            widget.backgroundColor!.withValues(alpha: 0.75),
+                          ],
+                        ),
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: glowColor.withValues(alpha: 0.45),
+                    blurRadius: 20,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
+              ),
+              child: Icon(widget.icon, color: Colors.white, size: 30),
+            ),
           ),
-          child: Icon(widget.icon),
         ),
       ),
     );

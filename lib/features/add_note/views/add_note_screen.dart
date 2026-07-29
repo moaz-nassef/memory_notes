@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -44,6 +45,9 @@ class _AddNoteView extends StatefulWidget {
 
 class _AddNoteViewState extends State<_AddNoteView>
     with TickerProviderStateMixin {
+  /// Content stays readable on tablets / desktop windows.
+  static const double _maxContentWidth = 720;
+
   final _titleController = TextEditingController();
   final _textController = TextEditingController();
   final _taskController = TextEditingController();
@@ -98,198 +102,270 @@ class _AddNoteViewState extends State<_AddNoteView>
           return Scaffold(
             body: Stack(
               children: [
-                // Background gradient
-                Container(
+                // Background: deep base + a soft glow of the note color
+                // bleeding in from the top and bottom edges.
+                const ColoredBox(
+                  color: AppColors.scaffoldDark,
+                  child: SizedBox.expand(),
+                ),
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 400),
                   decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
+                    gradient: RadialGradient(
+                      center: const Alignment(0, -1.2),
+                      radius: 1.4,
                       colors: [
-                        state.selectedColor.withValues(alpha: 0.15),
-                        AppColors.scaffoldDark,
-                        state.selectedColor.withValues(alpha: 0.05),
+                        state.selectedColor.withValues(alpha: 0.16),
+                        AppColors.scaffoldDark.withValues(alpha: 0),
+                      ],
+                    ),
+                  ),
+                ),
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 400),
+                  decoration: BoxDecoration(
+                    gradient: RadialGradient(
+                      center: const Alignment(0.8, 1.2),
+                      radius: 1.2,
+                      colors: [
+                        state.selectedColor.withValues(alpha: 0.08),
+                        AppColors.scaffoldDark.withValues(alpha: 0),
                       ],
                     ),
                   ),
                 ),
 
                 SafeArea(
-                  child: Column(
-                    children: [
-                      // Top Bar
-                      TopBarAddnote(
-                        saveNote:
-                            () => cubit.saveNote(
-                              title: _titleController.text,
-                              text: _textController.text,
-                            ),
-                        selectedColor: state.selectedColor,
-                        title:
-                            widget.initialNote == null
-                                ? 'New Note'
-                                : 'Edit Note',
+                  child: Center(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(
+                        maxWidth: _maxContentWidth,
                       ),
-
-                      // Main Content
-                      Expanded(
-                        child: SingleChildScrollView(
-                          padding: const EdgeInsets.only(
-                            left: 20,
-                            right: 20,
-                            bottom: 120, // Space for bottom toolbar
+                      child: Column(
+                        children: [
+                          // Top Bar
+                          TopBarAddnote(
+                            saveNote:
+                                () => cubit.saveNote(
+                                  title: _titleController.text,
+                                  text: _textController.text,
+                                ),
+                            selectedColor: state.selectedColor,
+                            title:
+                                widget.initialNote == null
+                                    ? 'New Note'
+                                    : 'Edit Note',
                           ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const SizedBox(height: 8),
 
-                              // Title field
-                              NoteTitleField(controller: _titleController),
-                              const SizedBox(height: 16),
-
-                              // Image preview
-                              if (state.imagePaths.isNotEmpty)
-                                NoteImagesSlideshow(
-                                  images: state.imagePaths,
-                                  shadowColor: state.selectedColor,
-                                  onRemove: cubit.removeImage,
-                                ),
-
-                              // Text field
-                              NoteTextField(controller: _textController),
-
-                              // Audio recordings (a note can hold several)
-                              for (var i = 0; i < state.audioPaths.length; i++)
-                                Padding(
-                                  padding: const EdgeInsets.only(top: 10),
-                                  child: AddNoteAudioPreview(
-                                    audioPath: state.audioPaths[i],
-                                    audioDurationMs: state.audioDurationsMs[i],
-                                    index: i + 1,
-                                    onRemoveAudio: () => cubit.removeAudio(i),
-                                  ),
-                                ),
-
-                              const SizedBox(height: 10),
-
-                              // Checklist
-                              ChecklistEditorSection(
-                                taskController: _taskController,
-                                checklistItems: state.checklistItems,
-                                onAddTask: () {
-                                  cubit.addTask(_taskController.text);
-                                  _taskController.clear();
-                                },
-                                onToggleTask: cubit.toggleTask,
-                                onRemoveTask: cubit.removeTask,
+                          // Main Content
+                          Expanded(
+                            child: SingleChildScrollView(
+                              physics: const BouncingScrollPhysics(),
+                              padding: const EdgeInsets.only(
+                                left: 20,
+                                right: 20,
+                                bottom: 140, // Space for bottom toolbar
                               ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const SizedBox(height: 12),
 
-                              const SizedBox(height: 24),
-                            ],
+                                  // Title field
+                                  NoteTitleField(controller: _titleController),
+                                  const SizedBox(height: 8),
+
+                                  // Image preview
+                                  if (state.imagePaths.isNotEmpty)
+                                    NoteImagesSlideshow(
+                                      images: state.imagePaths,
+                                      shadowColor: state.selectedColor,
+                                      onRemove: cubit.removeImage,
+                                    ),
+
+                                  // Text field
+                                  NoteTextField(controller: _textController),
+
+                                  // Audio recordings (a note can hold several)
+                                  for (
+                                    var i = 0;
+                                    i < state.audioPaths.length;
+                                    i++
+                                  )
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 10),
+                                      child: AddNoteAudioPreview(
+                                        audioPath: state.audioPaths[i],
+                                        audioDurationMs:
+                                            state.audioDurationsMs[i],
+                                        index: i + 1,
+                                        onRemoveAudio:
+                                            () => cubit.removeAudio(i),
+                                      ),
+                                    ),
+
+                                  // Checklist
+                                  ChecklistEditorSection(
+                                    taskController: _taskController,
+                                    checklistItems: state.checklistItems,
+                                    onAddTask: () {
+                                      cubit.addTask(_taskController.text);
+                                      _taskController.clear();
+                                    },
+                                    onToggleTask: cubit.toggleTask,
+                                    onRemoveTask: cubit.removeTask,
+                                  ),
+
+                                  const SizedBox(height: 24),
+                                ],
+                              ),
+                            ),
                           ),
-                        ),
+                        ],
                       ),
-                    ],
+                    ),
                   ),
                 ),
 
-                // Bottom toolbar
+                // Bottom toolbar — floating glass pill.
                 Positioned(
                   bottom: 0,
                   left: 0,
                   right: 0,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.black.withValues(alpha: 0.0000000001),
-                      borderRadius: const BorderRadius.vertical(
-                        top: Radius.circular(25),
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.1),
-                          blurRadius: 20,
-                          offset: const Offset(0, -5),
+                  child: SafeArea(
+                    top: false,
+                    child: Center(
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(
+                          maxWidth: _maxContentWidth,
                         ),
-                      ],
-                    ),
-                    child: SafeArea(
-                      top: false,
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 12,
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            // Color Picker Button
-                            BuildToolbarButton(
-                              icon: Icons.palette_rounded,
-                              label: 'Color',
-                              color: state.selectedColor,
-                              onTap: cubit.toggleColorPicker,
-                            ),
-
-                            // Image Picker Button
-                            BuildToolbarButton(
-                              icon: Icons.image_rounded,
-                              label: 'Image',
-                              color: Colors.blue,
-                              onTap: () => _pickImages(context, cubit),
-                            ),
-
-                            // Audio Recorder Button
-                            // Tap = hint only. Long press = record.
-                            // (Deletion happens via each preview's ✕ —
-                            // a stray tap must never destroy a recording.)
-                            GestureDetector(
-                              onTap: cubit.showRecordHint,
-                              onLongPressStart: (_) => cubit.startRecording(),
-                              onLongPressMoveUpdate:
-                                  (details) => cubit.updateDrag(
-                                    details.offsetFromOrigin,
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(28),
+                            child: BackdropFilter(
+                              filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 28,
+                                  vertical: 12,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: AppColors.surfaceLight.withValues(
+                                    alpha: 0.7,
                                   ),
-                              onLongPressEnd: (_) => cubit.endRecording(),
-                              child: AnimatedScale(
-                                scale: state.isRecording ? 1.1 : 1.0,
-                                duration: const Duration(milliseconds: 200),
-                                child: AnimatedBuilder(
-                                  animation: _pulseController,
-                                  builder: (context, child) {
-                                    return BuildToolbarButton(
-                                      icon:
-                                          state.hasAudio
-                                              ? Icons.mic
-                                              : Icons.mic_none_rounded,
-                                      label: 'Audio',
-                                      color: AppColors.accent,
-                                      onTap:
-                                          () {}, // Handled by GestureDetector
-                                      isRecording: state.isRecording,
-                                      pulseValue: _pulseController.value,
-                                    );
-                                  },
+                                  borderRadius: BorderRadius.circular(28),
+                                  border: Border.all(
+                                    color: AppColors.borderStrong,
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withValues(
+                                        alpha: 0.35,
+                                      ),
+                                      blurRadius: 24,
+                                      offset: const Offset(0, 10),
+                                    ),
+                                  ],
+                                ),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    // Color Picker Button
+                                    BuildToolbarButton(
+                                      icon: Icons.palette_rounded,
+                                      label: 'Color',
+                                      color: state.selectedColor,
+                                      onTap: cubit.toggleColorPicker,
+                                    ),
+
+                                    // Image Picker Button
+                                    BuildToolbarButton(
+                                      icon: Icons.image_rounded,
+                                      label: 'Image',
+                                      color: AppColors.teal,
+                                      onTap: () => _pickImages(context, cubit),
+                                    ),
+
+                                    // Audio Recorder Button
+                                    // Tap = hint only. Long press = record.
+                                    // (Deletion happens via each preview's ✕ —
+                                    // a stray tap must never destroy a
+                                    // recording.)
+                                    GestureDetector(
+                                      onTap: cubit.showRecordHint,
+                                      onLongPressStart:
+                                          (_) => cubit.startRecording(),
+                                      onLongPressMoveUpdate:
+                                          (details) => cubit.updateDrag(
+                                            details.offsetFromOrigin,
+                                          ),
+                                      onLongPressEnd:
+                                          (_) => cubit.endRecording(),
+                                      child: AnimatedScale(
+                                        scale: state.isRecording ? 1.1 : 1.0,
+                                        duration: const Duration(
+                                          milliseconds: 200,
+                                        ),
+                                        child: AnimatedBuilder(
+                                          animation: _pulseController,
+                                          builder: (context, child) {
+                                            return BuildToolbarButton(
+                                              icon:
+                                                  state.hasAudio
+                                                      ? Icons.mic
+                                                      : Icons.mic_none_rounded,
+                                              label: 'Audio',
+                                              color: AppColors.pink,
+                                              onTap:
+                                                  () {}, // Handled by GestureDetector
+                                              isRecording: state.isRecording,
+                                              pulseValue:
+                                                  _pulseController.value,
+                                            );
+                                          },
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ),
-                          ],
+                          ),
                         ),
                       ),
                     ),
                   ),
                 ),
 
-                // Color Picker Sheet
+                // Tap-catcher that closes the color picker when tapping
+                // anywhere outside of it.
+                if (state.showColorPicker)
+                  Positioned.fill(
+                    child: GestureDetector(
+                      onTap: cubit.closeColorPicker,
+                      behavior: HitTestBehavior.opaque,
+                      child: const SizedBox.expand(),
+                    ),
+                  ),
+
+                // Color Picker Sheet — anchored above the toolbar.
                 if (state.showColorPicker)
                   Positioned(
-                    bottom: 90, // Above toolbar
+                    bottom: 110,
                     left: 0,
                     right: 0,
-                    child: ColorPickerSheet(
-                      noteColors: AppColors.noteColors,
-                      selectedColor: state.selectedColor,
-                      onColorSelected: cubit.selectColor,
-                      onClose: cubit.closeColorPicker,
+                    child: Center(
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 420),
+                        child: ColorPickerSheet(
+                          noteColors: AppColors.noteColors,
+                          selectedColor: state.selectedColor,
+                          onColorSelected: cubit.selectColor,
+                          onClose: cubit.closeColorPicker,
+                        ),
+                      ),
                     ),
                   ),
 

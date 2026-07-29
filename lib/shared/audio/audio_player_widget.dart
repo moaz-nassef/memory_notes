@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:memory_notes/core/constants/app_colors.dart';
 import 'package:memory_notes/core/di_container.dart';
 import 'package:memory_notes/core/services/audio_playback_coordinator.dart';
 import 'package:audioplayers/audioplayers.dart';
@@ -130,19 +131,16 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget>
         totalDuration.inSeconds == 0 ? 1.0 : totalDuration.inSeconds.toDouble();
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            Colors.purple.withValues(alpha: 0.1),
-            Colors.purple.withValues(alpha: 0.05),
+            AppColors.primary.withValues(alpha: 0.12),
+            AppColors.primary.withValues(alpha: 0.05),
           ],
         ),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: Colors.purple.withValues(alpha: 0.3),
-          width: 1.5,
-        ),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
       ),
       child: Row(
         children: [
@@ -152,18 +150,16 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget>
               animation: _pulseController,
               builder: (context, child) {
                 return Container(
-                  width: 50,
-                  height: 50,
+                  width: 46,
+                  height: 46,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    gradient: const LinearGradient(
-                      colors: [Colors.purple, Colors.deepPurple],
-                    ),
+                    gradient: AppColors.primaryGradient,
                     boxShadow:
                         _isPlaying
                             ? [
                               BoxShadow(
-                                color: Colors.purple.withValues(
+                                color: AppColors.primary.withValues(
                                   alpha: 0.5 * _pulseController.value,
                                 ),
                                 blurRadius: 20,
@@ -175,13 +171,13 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget>
                   child: Icon(
                     _isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
                     color: Colors.white,
-                    size: 28,
+                    size: 26,
                   ),
                 );
               },
             ),
           ),
-          const SizedBox(width: 16),
+          const SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -189,37 +185,42 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget>
                 Row(
                   children: [
                     const Icon(
-                      Icons.audiotrack_rounded,
-                      size: 18,
-                      color: Colors.purple,
+                      Icons.graphic_eq_rounded,
+                      size: 15,
+                      color: AppColors.accent,
                     ),
                     const SizedBox(width: 6),
                     Text(
                       _formatDuration(safeRemaining),
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.grey[300],
+                      style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 200),
+                      child: Text(
+                        _statusText,
+                        key: ValueKey(_statusText),
+                        style: const TextStyle(
+                          fontSize: 11,
+                          color: AppColors.textMuted,
+                        ),
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 4),
-                AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 200),
-                  child: Text(
-                    _statusText,
-                    key: ValueKey(_statusText),
-                    style: TextStyle(fontSize: 13, color: Colors.grey[500]),
+                SizedBox(
+                  height: 26,
+                  child: Slider(
+                    value: _position.inSeconds.toDouble().clamp(0.0, sliderMax),
+                    max: sliderMax,
+                    onChanged: (value) async {
+                      await _audioPlayer.seek(Duration(seconds: value.toInt()));
+                    },
                   ),
-                ),
-                Slider(
-                  value: _position.inSeconds.toDouble().clamp(0.0, sliderMax),
-                  max: sliderMax,
-                  onChanged: (value) async {
-                    await _audioPlayer.seek(Duration(seconds: value.toInt()));
-                  },
-                  activeColor: Colors.purple,
                 ),
               ],
             ),

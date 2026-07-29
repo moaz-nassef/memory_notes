@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:memory_notes/core/constants/app_colors.dart';
 import 'package:memory_notes/models/note_model.dart';
 
 class ChecklistPreview extends StatefulWidget {
@@ -30,66 +31,101 @@ class _ChecklistPreviewState extends State<ChecklistPreview> {
     }
 
     final doneCount = checklist.where((e) => e.isDone).length;
+    final progress = doneCount / checklist.length;
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.06),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+        color: Colors.white.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(Icons.checklist_rounded, size: 18, color: Colors.teal[200]),
-              const SizedBox(width: 6),
-              Text(
+              const Icon(
+                Icons.checklist_rounded,
+                size: 16,
+                color: AppColors.success,
+              ),
+              const SizedBox(width: 8),
+              const Text(
                 'Tasks',
                 style: TextStyle(
+                  fontSize: 13,
                   fontWeight: FontWeight.w700,
-                  color: const Color.fromARGB(255, 187, 106, 83),
+                  color: AppColors.textPrimary,
                 ),
               ),
               const Spacer(),
-              Text(
-                '$doneCount/${checklist.length}',
-                style: TextStyle(
-                  color: Colors.grey[700],
-                  fontWeight: FontWeight.w600,
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                decoration: BoxDecoration(
+                  color: AppColors.success.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Text(
+                  '$doneCount/${checklist.length}',
+                  style: const TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.success,
+                  ),
                 ),
               ),
             ],
+          ),
+          const SizedBox(height: 10),
+
+          // Progress bar
+          ClipRRect(
+            borderRadius: BorderRadius.circular(4),
+            child: LinearProgressIndicator(
+              value: progress,
+              minHeight: 4,
+              backgroundColor: Colors.white.withValues(alpha: 0.08),
+              valueColor: const AlwaysStoppedAnimation(AppColors.success),
+            ),
           ),
           const SizedBox(height: 8),
 
           ...List.generate(checklist.length, (index) {
             final item = checklist[index];
 
-            return Row(
-              children: [
-                Checkbox(
-                  value: item.isDone,
-                  visualDensity: VisualDensity.compact,
-                  activeColor: Colors.teal,
-                  onChanged: (v) => _toggleItem(index, v),
-                ),
-                Expanded(
-                  child: Text(
-                    item.title,
-                    style: TextStyle(
-                      color:
-                          item.isDone
-                              ? const Color.fromARGB(255, 87, 255, 96)
-                              : const Color.fromARGB(255, 247, 216, 216),
-                      decoration:
-                          item.isDone ? TextDecoration.lineThrough : null,
+            return Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: Row(
+                children: [
+                  SizedBox(
+                    width: 22,
+                    height: 22,
+                    child: Checkbox(
+                      value: item.isDone,
+                      visualDensity: VisualDensity.compact,
+                      activeColor: AppColors.success,
+                      onChanged: (v) => _toggleItem(index, v),
                     ),
                   ),
-                ),
-              ],
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      item.title,
+                      style: TextStyle(
+                        fontSize: 13.5,
+                        color:
+                            item.isDone
+                                ? AppColors.textMuted
+                                : AppColors.textSecondary,
+                        decoration:
+                            item.isDone ? TextDecoration.lineThrough : null,
+                        decorationColor: AppColors.textMuted,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             );
           }),
         ],

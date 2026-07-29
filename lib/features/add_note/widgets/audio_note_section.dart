@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:memory_notes/core/constants/app_colors.dart';
 import 'package:memory_notes/shared/audio/audio_player_widget.dart';
 
 /// Preview of one attached recording, with a remove button.
@@ -51,13 +52,16 @@ class AddNoteAudioPreview extends StatelessWidget {
                   child: Container(
                     padding: const EdgeInsets.all(6),
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.85),
+                      color: AppColors.error.withValues(alpha: 0.15),
                       shape: BoxShape.circle,
+                      border: Border.all(
+                        color: AppColors.error.withValues(alpha: 0.4),
+                      ),
                     ),
                     child: const Icon(
                       Icons.close_rounded,
-                      size: 18,
-                      color: Colors.red,
+                      size: 16,
+                      color: AppColors.error,
                     ),
                   ),
                 ),

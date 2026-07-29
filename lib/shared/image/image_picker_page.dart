@@ -1,6 +1,8 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'dart:io';
+import 'package:memory_notes/core/constants/app_colors.dart';
 
 class ImagePickerPage extends StatefulWidget {
   const ImagePickerPage({super.key});
@@ -19,7 +21,7 @@ class _ImagePickerPageState extends State<ImagePickerPage>
     super.initState();
     _fabController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 300),
+      duration: const Duration(milliseconds: 300),
     );
   }
 
@@ -31,9 +33,9 @@ class _ImagePickerPageState extends State<ImagePickerPage>
 
   Future<void> pickImagesFromGallery() async {
     final ImagePicker picker = ImagePicker();
-    final List<XFile>? images = await picker.pickMultiImage();
+    final List<XFile> images = await picker.pickMultiImage();
 
-    if (images != null && images.isNotEmpty) {
+    if (images.isNotEmpty) {
       setState(() {
         selectedImages.addAll(images.map((e) => File(e.path)).toList());
       });
@@ -68,29 +70,20 @@ class _ImagePickerPageState extends State<ImagePickerPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Color(0xFFF5F7FA), Color(0xFFE8EAF6)],
-          ),
-        ),
-        child: SafeArea(
-          child: Column(
-            children: [
-              // Top Bar
-              _buildTopBar(),
+      backgroundColor: AppColors.scaffoldDark,
+      body: SafeArea(
+        child: Column(
+          children: [
+            _buildTopBar(),
 
-              // Empty State or Grid
-              Expanded(
-                child:
-                    selectedImages.isEmpty
-                        ? _buildEmptyState()
-                        : _buildImageGrid(),
-              ),
-            ],
-          ),
+            // Empty State or Grid
+            Expanded(
+              child:
+                  selectedImages.isEmpty
+                      ? _buildEmptyState()
+                      : _buildImageGrid(),
+            ),
+          ],
         ),
       ),
       floatingActionButton: _buildFloatingButtons(),
@@ -100,83 +93,138 @@ class _ImagePickerPageState extends State<ImagePickerPage>
 
   Widget _buildTopBar() {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      margin: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: Offset(0, 2),
-          ),
-        ],
+        color: Colors.white.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: AppColors.border),
       ),
       child: Row(
         children: [
-          IconButton(
-            icon: Icon(Icons.arrow_back_ios_new_rounded),
-            onPressed: () => Navigator.pop(context),
+          Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () => Navigator.pop(context),
+              borderRadius: BorderRadius.circular(14),
+              child: Container(
+                width: 42,
+                height: 42,
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.06),
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: const Icon(
+                  Icons.arrow_back_ios_new_rounded,
+                  size: 18,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+            ),
           ),
-          SizedBox(width: 8),
+          const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
+                const Text(
                   'Select Images',
                   style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.grey[900],
+                    fontSize: 17,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: -0.2,
+                    color: AppColors.textPrimary,
                   ),
                 ),
                 if (selectedImages.isNotEmpty)
                   Text(
                     '${selectedImages.length} image${selectedImages.length > 1 ? 's' : ''} selected',
-                    style: TextStyle(fontSize: 13, color: Colors.grey[600]),
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: AppColors.textMuted,
+                    ),
                   ),
               ],
             ),
           ),
           if (selectedImages.isNotEmpty) ...[
             IconButton(
-              icon: Icon(Icons.delete_sweep_rounded),
-              color: Colors.red,
+              icon: const Icon(Icons.delete_sweep_rounded),
+              color: AppColors.error,
               onPressed: () {
                 showDialog(
                   context: context,
                   builder:
                       (context) => AlertDialog(
-                        title: Text('Clear All?'),
-                        content: Text('Remove all selected images?'),
+                        title: const Text('Clear All?'),
+                        content: const Text('Remove all selected images?'),
                         actions: [
                           TextButton(
                             onPressed: () => Navigator.pop(context),
-                            child: Text('Cancel'),
+                            child: const Text(
+                              'Cancel',
+                              style: TextStyle(color: AppColors.textSecondary),
+                            ),
                           ),
-                          TextButton(
+                          FilledButton(
+                            style: FilledButton.styleFrom(
+                              backgroundColor: AppColors.error,
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
                             onPressed: () {
                               clearAll();
                               Navigator.pop(context);
                             },
-                            child: Text(
-                              'Clear',
-                              style: TextStyle(color: Colors.red),
-                            ),
+                            child: const Text('Clear'),
                           ),
                         ],
                       ),
                 );
               },
             ),
-            IconButton(
-              icon: Icon(Icons.check_circle_rounded),
-              color: Colors.green,
-              iconSize: 28,
-              onPressed: () {
-                Navigator.pop(context, selectedImages);
-              },
+            Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () => Navigator.pop(context, selectedImages),
+                borderRadius: BorderRadius.circular(14),
+                child: Ink(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 10,
+                  ),
+                  decoration: BoxDecoration(
+                    gradient: AppColors.primaryGradient,
+                    borderRadius: BorderRadius.circular(14),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.primary.withValues(alpha: 0.45),
+                        blurRadius: 16,
+                        offset: const Offset(0, 6),
+                      ),
+                    ],
+                  ),
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.check_rounded, size: 18, color: Colors.white),
+                      SizedBox(width: 6),
+                      Text(
+                        'Done',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ),
+            const SizedBox(width: 4),
           ],
         ],
       ),
@@ -192,28 +240,39 @@ class _ImagePickerPageState extends State<ImagePickerPage>
             width: 120,
             height: 120,
             decoration: BoxDecoration(
-              color: Colors.blue.withValues(alpha: 0.1),
+              color: AppColors.teal.withValues(alpha: 0.1),
               shape: BoxShape.circle,
+              border: Border.all(
+                color: AppColors.teal.withValues(alpha: 0.35),
+                width: 1.5,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.teal.withValues(alpha: 0.2),
+                  blurRadius: 50,
+                  spreadRadius: 4,
+                ),
+              ],
             ),
-            child: Icon(
+            child: const Icon(
               Icons.photo_library_outlined,
-              size: 60,
-              color: Colors.blue,
+              size: 52,
+              color: AppColors.teal,
             ),
           ),
-          SizedBox(height: 24),
-          Text(
+          const SizedBox(height: 24),
+          const Text(
             'No Images Selected',
             style: TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-              color: Colors.grey[900],
+              fontSize: 20,
+              fontWeight: FontWeight.w700,
+              color: AppColors.textPrimary,
             ),
           ),
-          SizedBox(height: 8),
-          Text(
+          const SizedBox(height: 8),
+          const Text(
             'Tap the buttons below to add images',
-            style: TextStyle(fontSize: 15, color: Colors.grey[600]),
+            style: TextStyle(fontSize: 14, color: AppColors.textMuted),
           ),
         ],
       ),
@@ -221,16 +280,24 @@ class _ImagePickerPageState extends State<ImagePickerPage>
   }
 
   Widget _buildImageGrid() {
-    return GridView.builder(
-      padding: EdgeInsets.all(16),
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 3,
-        crossAxisSpacing: 12,
-        mainAxisSpacing: 12,
-      ),
-      itemCount: selectedImages.length,
-      itemBuilder: (context, index) {
-        return _buildImageCard(index);
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Responsive: more columns on wide screens.
+        final crossAxisCount = (constraints.maxWidth / 160).floor().clamp(3, 8);
+
+        return GridView.builder(
+          physics: const BouncingScrollPhysics(),
+          padding: const EdgeInsets.all(16),
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: crossAxisCount,
+            crossAxisSpacing: 12,
+            mainAxisSpacing: 12,
+          ),
+          itemCount: selectedImages.length,
+          itemBuilder: (context, index) {
+            return _buildImageCard(index);
+          },
+        );
       },
     );
   }
@@ -241,11 +308,12 @@ class _ImagePickerPageState extends State<ImagePickerPage>
         Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: AppColors.border),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.1),
-                blurRadius: 8,
-                offset: Offset(0, 4),
+                color: Colors.black.withValues(alpha: 0.3),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
               ),
             ],
           ),
@@ -262,43 +330,44 @@ class _ImagePickerPageState extends State<ImagePickerPage>
 
         // Remove button
         Positioned(
-          top: 4,
-          right: 4,
+          top: 6,
+          right: 6,
           child: GestureDetector(
             onTap: () => removeImage(index),
             child: Container(
-              padding: EdgeInsets.all(6),
+              padding: const EdgeInsets.all(5),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: Colors.black.withValues(alpha: 0.65),
                 shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.2),
-                    blurRadius: 8,
-                  ),
-                ],
+                border: Border.all(
+                  color: AppColors.error.withValues(alpha: 0.6),
+                ),
               ),
-              child: Icon(Icons.close_rounded, size: 16, color: Colors.red),
+              child: const Icon(
+                Icons.close_rounded,
+                size: 14,
+                color: AppColors.error,
+              ),
             ),
           ),
         ),
 
         // Index badge
         Positioned(
-          bottom: 4,
-          left: 4,
+          bottom: 6,
+          left: 6,
           child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
             decoration: BoxDecoration(
-              color: Colors.black.withValues(alpha: 0.7),
-              borderRadius: BorderRadius.circular(12),
+              color: Colors.black.withValues(alpha: 0.65),
+              borderRadius: BorderRadius.circular(10),
             ),
             child: Text(
               '${index + 1}',
-              style: TextStyle(
+              style: const TextStyle(
                 color: Colors.white,
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
+                fontSize: 11,
+                fontWeight: FontWeight.w700,
               ),
             ),
           ),
@@ -316,20 +385,36 @@ class _ImagePickerPageState extends State<ImagePickerPage>
         FloatingActionButton.extended(
           onPressed: pickImagesFromGallery,
           heroTag: 'gallery',
-          backgroundColor: Color(0xFF667EEA),
-          icon: Icon(Icons.photo_library_rounded),
-          label: Text('Gallery'),
+          backgroundColor: AppColors.primary,
+          foregroundColor: Colors.white,
+          elevation: 6,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          icon: const Icon(Icons.photo_library_rounded),
+          label: const Text(
+            'Gallery',
+            style: TextStyle(fontWeight: FontWeight.w700),
+          ),
         ),
 
-        SizedBox(height: 12),
+        const SizedBox(height: 12),
 
         // Camera Button
         FloatingActionButton.extended(
           onPressed: pickImageFromCamera,
           heroTag: 'camera',
-          backgroundColor: Color(0xFF4ECDC4),
-          icon: Icon(Icons.camera_alt_rounded),
-          label: Text('Camera'),
+          backgroundColor: AppColors.teal,
+          foregroundColor: Colors.white,
+          elevation: 6,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          icon: const Icon(Icons.camera_alt_rounded),
+          label: const Text(
+            'Camera',
+            style: TextStyle(fontWeight: FontWeight.w700),
+          ),
         ),
       ],
     );

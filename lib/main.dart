@@ -6,6 +6,7 @@ import 'package:memory_notes/core/constants/hive_keys.dart';
 import 'package:memory_notes/core/di_container.dart';
 import 'package:memory_notes/core/theme/app_theme.dart';
 import 'package:memory_notes/features/connectivity/cubit/connectivity_cubit.dart';
+import 'package:memory_notes/features/connectivity/widgets/connectivity_notifier.dart';
 import 'package:memory_notes/features/notes/cubit/notes_cubit.dart';
 import 'package:memory_notes/models/note_model.dart';
 import 'package:memory_notes/models/task_model.dart';
@@ -55,6 +56,9 @@ class MyApp extends StatelessWidget {
         theme: AppTheme.dark,
         initialRoute: initialRoute,
         onGenerateRoute: AppRouter.onGenerateRoute,
+        // Wraps every screen: shows a one-time snackbar whenever the
+        // device goes offline or comes back online.
+        builder: (context, child) => ConnectivityNotifier(child: child!),
       ),
     );
   }

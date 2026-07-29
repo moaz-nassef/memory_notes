@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:memory_notes/core/constants/app_colors.dart';
 
 class NoteImagesSlideshow extends StatefulWidget {
   const NoteImagesSlideshow({
@@ -197,22 +198,22 @@ class _NoteImagesSlideshowState extends State<NoteImagesSlideshow> {
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
                         border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.4),
+                          color: Colors.white.withValues(alpha: 0.25),
                           width: 1.5,
                         ),
-                        color: Colors.white.withValues(alpha: 0.3),
+                        color: Colors.black.withValues(alpha: 0.45),
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.15),
+                            color: Colors.black.withValues(alpha: 0.3),
                             blurRadius: 10,
                           ),
                         ],
                       ),
-                      child: Icon(
+                      child: const Icon(
                         Icons.chevron_left_rounded,
                         size: 24,
-                        color: Colors.grey[800],
+                        color: Colors.white,
                       ),
                     ),
                   ),
@@ -237,22 +238,22 @@ class _NoteImagesSlideshowState extends State<NoteImagesSlideshow> {
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
                         border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.4),
+                          color: Colors.white.withValues(alpha: 0.25),
                           width: 1.5,
                         ),
-                        color: Colors.white.withValues(alpha: 0.3),
+                        color: Colors.black.withValues(alpha: 0.45),
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.15),
+                            color: Colors.black.withValues(alpha: 0.3),
                             blurRadius: 10,
                           ),
                         ],
                       ),
-                      child: Icon(
+                      child: const Icon(
                         Icons.chevron_right_rounded,
                         size: 24,
-                        color: Colors.grey[800],
+                        color: Colors.white,
                       ),
                     ),
                   ),
@@ -308,7 +309,7 @@ class _NoteImagesSlideshowState extends State<NoteImagesSlideshow> {
       margin: const EdgeInsets.symmetric(horizontal: 3),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(25),
-        color: Colors.grey[100],
+        color: AppColors.surfaceLight,
       ),
       child:
           imagePath.startsWith('http')
@@ -330,20 +331,20 @@ class _NoteImagesSlideshowState extends State<NoteImagesSlideshow> {
                   );
                 },
                 errorBuilder: (context, error, stackTrace) {
-                  return Center(
+                  return const Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(
                           Icons.broken_image_rounded,
-                          size: 60,
-                          color: Colors.grey[400],
+                          size: 56,
+                          color: AppColors.textMuted,
                         ),
-                        const SizedBox(height: 12),
+                        SizedBox(height: 12),
                         Text(
                           'Failed to load image',
                           style: TextStyle(
-                            color: Colors.grey[600],
+                            color: AppColors.textMuted,
                             fontSize: 14,
                           ),
                         ),
@@ -359,20 +360,20 @@ class _NoteImagesSlideshowState extends State<NoteImagesSlideshow> {
                   fit: BoxFit.cover,
                   width: double.infinity,
                   errorBuilder: (context, error, stackTrace) {
-                    return Center(
+                    return const Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(
                             Icons.image_not_supported_rounded,
-                            size: 60,
-                            color: Colors.grey[400],
+                            size: 56,
+                            color: AppColors.textMuted,
                           ),
-                          const SizedBox(height: 12),
+                          SizedBox(height: 12),
                           Text(
                             'Image not found',
                             style: TextStyle(
-                              color: Colors.grey[600],
+                              color: AppColors.textMuted,
                               fontSize: 14,
                             ),
                           ),

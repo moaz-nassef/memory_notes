@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:memory_notes/core/constants/app_colors.dart';
 
 class NoteTitleField extends StatelessWidget {
   const NoteTitleField({super.key, required this.controller});
@@ -9,16 +10,28 @@ class NoteTitleField extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextField(
       controller: controller,
-      style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
-      decoration: InputDecoration(
-        fillColor: Colors.white.withValues(alpha: 0.009),
-        filled: true,
-        hintText: '✨ title...',
+      cursorColor: AppColors.primary,
+      textCapitalization: TextCapitalization.sentences,
+      style: const TextStyle(
+        fontSize: 26,
+        fontWeight: FontWeight.w800,
+        letterSpacing: -0.3,
+        height: 1.2,
+        color: AppColors.textPrimary,
+      ),
+      decoration: const InputDecoration(
+        hintText: 'Title',
         hintStyle: TextStyle(
-          color: Colors.grey[400],
-          fontWeight: FontWeight.w600,
+          fontSize: 26,
+          fontWeight: FontWeight.w800,
+          letterSpacing: -0.3,
+          color: AppColors.textMuted,
         ),
+        filled: false,
         border: InputBorder.none,
+        enabledBorder: InputBorder.none,
+        focusedBorder: InputBorder.none,
+        contentPadding: EdgeInsets.symmetric(horizontal: 4, vertical: 8),
       ),
     );
   }

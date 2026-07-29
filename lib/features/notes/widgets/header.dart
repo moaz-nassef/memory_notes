@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:memory_notes/features/connectivity/widgets/online_status_chip.dart';
+import 'package:memory_notes/core/constants/app_colors.dart';
 import 'package:memory_notes/shared/effects/animated_gradient_text.dart';
 
 class Header extends StatelessWidget {
@@ -10,7 +10,7 @@ class Header extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(10.0),
+      padding: const EdgeInsets.fromLTRB(20, 16, 12, 12),
       child: Row(
         children: [
           Column(
@@ -22,22 +22,62 @@ class Header extends StatelessWidget {
                     Theme.of(context).textTheme.headlineMedium ??
                     const TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
               ),
-              Text(
-                '$noteCount notes',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.white.withValues(alpha: 0.7),
+              const SizedBox(height: 4),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 3,
+                ),
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: AppColors.primary.withValues(alpha: 0.3),
+                  ),
+                ),
+                child: Text(
+                  '$noteCount ${noteCount == 1 ? 'note' : 'notes'}',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.accent,
+                  ),
                 ),
               ),
             ],
           ),
-          const SizedBox(width: 10),
-          const Expanded(child: OnlineStatusChip()),
-          IconButton(
-            icon: Icon(Icons.search_rounded, size: 28),
-            onPressed: () {},
-          ),
+          const Spacer(),
+          _GlassIconButton(icon: Icons.search_rounded, onPressed: () {}),
         ],
+      ),
+    );
+  }
+}
+
+/// A soft, frosted circular icon button used in app headers.
+class _GlassIconButton extends StatelessWidget {
+  const _GlassIconButton({required this.icon, required this.onPressed});
+
+  final IconData icon;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onPressed,
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          width: 44,
+          height: 44,
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.05),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: AppColors.border),
+          ),
+          child: Icon(icon, size: 22, color: AppColors.textSecondary),
+        ),
       ),
     );
   }

@@ -14,32 +14,48 @@ import 'package:memory_notes/shared/effects/staggered_fade_slide.dart';
 class NotesListScreen extends StatelessWidget {
   const NotesListScreen({super.key});
 
+  /// Content stays centered and readable on tablets / desktop windows.
+  static const double _maxContentWidth = 720;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: AuroraBackground(
         child: SafeArea(
-          child: BlocBuilder<NotesCubit, NotesState>(
-            builder: (context, state) {
-              return switch (state) {
-                NotesInitial() || NotesLoading() => const Center(
-                  child: CircularProgressIndicator(),
-                ),
-                NotesError(message: final message) => Center(
-                  child: Text(message),
-                ),
-                NotesLoaded(notes: final notes) => _buildNotesList(
-                  context,
-                  notes,
-                ),
-              };
-            },
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: _maxContentWidth),
+              child: BlocBuilder<NotesCubit, NotesState>(
+                builder: (context, state) {
+                  return switch (state) {
+                    NotesInitial() || NotesLoading() => const Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                    NotesError(message: final message) => Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(24),
+                        child: Text(
+                          message,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                      ),
+                    ),
+                    NotesLoaded(notes: final notes) => _buildNotesList(
+                      context,
+                      notes,
+                    ),
+                  };
+                },
+              ),
+            ),
           ),
         ),
       ),
       floatingActionButton: BouncyFab(
         onPressed: () => _openAddNote(context),
-        backgroundColor: AppColors.primary,
         icon: Icons.add_rounded,
       ),
     );
@@ -54,7 +70,8 @@ class NotesListScreen extends StatelessWidget {
               notes.isEmpty
                   ? _buildEmptyState(context)
                   : ListView.builder(
-                    padding: const EdgeInsets.only(bottom: 80),
+                    physics: const BouncingScrollPhysics(),
+                    padding: const EdgeInsets.only(top: 4, bottom: 100),
                     itemCount: notes.length,
                     itemBuilder: (context, index) {
                       final note = notes[index];
@@ -62,6 +79,7 @@ class NotesListScreen extends StatelessWidget {
                         index: index,
                         child: NoteCard(
                           note: note,
+                          onTap: () => _openEditNote(context, note),
                           onEdit: () => _openEditNote(context, note),
                           onDelete: () => _confirmDelete(context, note),
                         ),
@@ -89,34 +107,39 @@ class NotesListScreen extends StatelessWidget {
                   (context, value, child) =>
                       Transform.scale(scale: value, child: child),
               child: Container(
-                padding: const EdgeInsets.all(28),
+                padding: const EdgeInsets.all(30),
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: AppColors.primary.withValues(alpha: 0.12),
+                  color: AppColors.primary.withValues(alpha: 0.1),
                   border: Border.all(
                     color: AppColors.primary.withValues(alpha: 0.4),
-                    width: 2,
+                    width: 1.5,
                   ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.primary.withValues(alpha: 0.25),
+                      blurRadius: 60,
+                      spreadRadius: 4,
+                    ),
+                  ],
                 ),
                 child: const Icon(
                   Icons.lightbulb_outline_rounded,
-                  size: 64,
-                  color: AppColors.primary,
+                  size: 60,
+                  color: AppColors.accent,
                 ),
               ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 28),
             Text(
               'All quiet in here',
               style: theme.headlineMedium,
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 10),
             Text(
               'Your brain\'s external drive is empty.\nTap + to offload a thought.',
-              style: theme.bodyLarge?.copyWith(
-                color: Colors.white.withValues(alpha: 0.6),
-              ),
+              style: theme.bodyLarge?.copyWith(color: AppColors.textMuted),
               textAlign: TextAlign.center,
             ),
           ],
@@ -148,6 +171,18 @@ class NotesListScreen extends StatelessWidget {
       context: context,
       builder:
           (dialogContext) => AlertDialog(
+            icon: Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: AppColors.error.withValues(alpha: 0.12),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.delete_outline_rounded,
+                color: AppColors.error,
+                size: 28,
+              ),
+            ),
             title: const Text('Delete note?'),
             content: const Text(
               'This will delete note data and its audio file.',
@@ -155,9 +190,19 @@ class NotesListScreen extends StatelessWidget {
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(dialogContext, false),
-                child: const Text('Cancel'),
+                child: const Text(
+                  'Cancel',
+                  style: TextStyle(color: AppColors.textSecondary),
+                ),
               ),
-              ElevatedButton(
+              FilledButton(
+                style: FilledButton.styleFrom(
+                  backgroundColor: AppColors.error,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
                 onPressed: () => Navigator.pop(dialogContext, true),
                 child: const Text('Delete'),
               ),
