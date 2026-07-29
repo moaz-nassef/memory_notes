@@ -94,11 +94,14 @@ class NoteCard extends StatelessWidget {
                 ),
               const SizedBox(height: 8),
 
-              //  Audio
-              if (note.audioPath != null)
+              //  Audio recordings (a note can hold several)
+              for (var i = 0; i < note.allAudioPaths.length; i++)
                 Padding(
                   padding: const EdgeInsets.only(top: 8),
-                  child: AudioPlayerWidget(note: note),
+                  child: AudioPlayerWidget(
+                    audioPath: note.allAudioPaths[i],
+                    audioDurationMs: note.allAudioDurationsMs[i],
+                  ),
                 ),
               const SizedBox(height: 14),
 

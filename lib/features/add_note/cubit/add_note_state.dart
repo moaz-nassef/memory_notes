@@ -13,8 +13,8 @@ class AddNoteState {
     this.checklistItems = const [],
     this.selectedColor = AppColors.defaultNoteColor,
     this.showColorPicker = false,
-    this.audioPath,
-    this.audioDurationMs,
+    this.audioPaths = const [],
+    this.audioDurationsMs = const [],
     this.isRecording = false,
     this.showVoiceOverlay = false,
     this.dragOffset = Offset.zero,
@@ -30,8 +30,10 @@ class AddNoteState {
   final Color selectedColor;
   final bool showColorPicker;
 
-  final String? audioPath;
-  final int? audioDurationMs;
+  /// All voice recordings attached to the note (paths + durations
+  /// are aligned by index).
+  final List<String> audioPaths;
+  final List<int> audioDurationsMs;
 
   final bool isRecording;
   final bool showVoiceOverlay;
@@ -46,15 +48,15 @@ class AddNoteState {
   /// One-shot "note is ready" event (null = still editing).
   final NoteModel? savedNote;
 
-  bool get hasAudio => audioPath != null;
+  bool get hasAudio => audioPaths.isNotEmpty;
 
   AddNoteState copyWith({
     List<String>? imagePaths,
     List<TaskModel>? checklistItems,
     Color? selectedColor,
     bool? showColorPicker,
-    String? Function()? audioPath,
-    int? Function()? audioDurationMs,
+    List<String>? audioPaths,
+    List<int>? audioDurationsMs,
     bool? isRecording,
     bool? showVoiceOverlay,
     Offset? dragOffset,
@@ -69,9 +71,8 @@ class AddNoteState {
       checklistItems: checklistItems ?? this.checklistItems,
       selectedColor: selectedColor ?? this.selectedColor,
       showColorPicker: showColorPicker ?? this.showColorPicker,
-      audioPath: audioPath != null ? audioPath() : this.audioPath,
-      audioDurationMs:
-          audioDurationMs != null ? audioDurationMs() : this.audioDurationMs,
+      audioPaths: audioPaths ?? this.audioPaths,
+      audioDurationsMs: audioDurationsMs ?? this.audioDurationsMs,
       isRecording: isRecording ?? this.isRecording,
       showVoiceOverlay: showVoiceOverlay ?? this.showVoiceOverlay,
       dragOffset: dragOffset ?? this.dragOffset,

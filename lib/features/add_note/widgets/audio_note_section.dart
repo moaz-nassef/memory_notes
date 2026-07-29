@@ -1,59 +1,69 @@
 import 'package:flutter/material.dart';
-import 'package:memory_notes/models/note_model.dart';
 import 'package:memory_notes/shared/audio/audio_player_widget.dart';
 
+/// Preview of one attached recording, with a remove button.
 class AddNoteAudioPreview extends StatelessWidget {
   const AddNoteAudioPreview({
     super.key,
     required this.audioPath,
     required this.audioDurationMs,
-    required this.selectedColor,
+    required this.index,
     required this.onRemoveAudio,
   });
 
-  final String? audioPath;
+  final String audioPath;
   final int? audioDurationMs;
-  final Color selectedColor;
+
+  /// 1-based position shown as "Voice note 1", "Voice note 2", …
+  final int index;
   final VoidCallback onRemoveAudio;
 
   @override
   Widget build(BuildContext context) {
-    final path = audioPath;
-    if (path == null) return const SizedBox.shrink();
-
-    final previewNote = NoteModel(
-      title: 'Audio Preview',
-      audioPath: path,
-      audioDurationMs: audioDurationMs,
-      createdAt: DateTime.now(),
-      color: selectedColor.toARGB32(),
-    );
-
-    return Stack(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        AudioPlayerWidget(note: previewNote),
-        Positioned(
-          top: 8,
-          right: 8,
-          child: Material(
-            color: Colors.transparent,
-            child: InkWell(
-              borderRadius: BorderRadius.circular(20),
-              onTap: onRemoveAudio,
-              child: Container(
-                padding: const EdgeInsets.all(6),
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.85),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.close_rounded,
-                  size: 18,
-                  color: Colors.red,
+        Padding(
+          padding: const EdgeInsets.only(left: 4, bottom: 4),
+          child: Text(
+            'Voice note $index',
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: Colors.white.withValues(alpha: 0.5),
+            ),
+          ),
+        ),
+        Stack(
+          children: [
+            AudioPlayerWidget(
+              audioPath: audioPath,
+              audioDurationMs: audioDurationMs,
+            ),
+            Positioned(
+              top: 8,
+              right: 8,
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(20),
+                  onTap: onRemoveAudio,
+                  child: Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.85),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.close_rounded,
+                      size: 18,
+                      color: Colors.red,
+                    ),
+                  ),
                 ),
               ),
             ),
-          ),
+          ],
         ),
       ],
     );

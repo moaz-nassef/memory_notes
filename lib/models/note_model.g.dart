@@ -24,13 +24,15 @@ class NoteModelAdapter extends TypeAdapter<NoteModel> {
       createdAt: fields[4] as DateTime,
       color: fields[5] as int,
       audioDurationMs: fields[6] as int?,
+      audioPaths: (fields[8] as List?)?.cast<String>(),
+      audioDurationsMs: (fields[9] as List?)?.cast<int>(),
     )..rawChecklist = fields[7] as dynamic;
   }
 
   @override
   void write(BinaryWriter writer, NoteModel obj) {
     writer
-      ..writeByte(8)
+      ..writeByte(10)
       ..writeByte(0)
       ..write(obj.title)
       ..writeByte(1)
@@ -46,7 +48,11 @@ class NoteModelAdapter extends TypeAdapter<NoteModel> {
       ..writeByte(6)
       ..write(obj.audioDurationMs)
       ..writeByte(7)
-      ..write(obj.rawChecklist);
+      ..write(obj.rawChecklist)
+      ..writeByte(8)
+      ..write(obj.audioPaths)
+      ..writeByte(9)
+      ..write(obj.audioDurationsMs);
   }
 
   @override

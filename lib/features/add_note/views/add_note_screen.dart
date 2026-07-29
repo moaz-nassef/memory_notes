@@ -158,13 +158,16 @@ class _AddNoteViewState extends State<_AddNoteView>
                               // Text field
                               NoteTextField(controller: _textController),
 
-                              // Audio preview
-                              if (state.hasAudio)
-                                AddNoteAudioPreview(
-                                  audioPath: state.audioPath,
-                                  audioDurationMs: state.audioDurationMs,
-                                  selectedColor: state.selectedColor,
-                                  onRemoveAudio: cubit.removeAudio,
+                              // Audio recordings (a note can hold several)
+                              for (var i = 0; i < state.audioPaths.length; i++)
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 10),
+                                  child: AddNoteAudioPreview(
+                                    audioPath: state.audioPaths[i],
+                                    audioDurationMs: state.audioDurationsMs[i],
+                                    index: i + 1,
+                                    onRemoveAudio: () => cubit.removeAudio(i),
+                                  ),
                                 ),
 
                               const SizedBox(height: 10),
@@ -236,14 +239,11 @@ class _AddNoteViewState extends State<_AddNoteView>
                             ),
 
                             // Audio Recorder Button
+                            // Tap = hint only. Long press = record.
+                            // (Deletion happens via each preview's ✕ —
+                            // a stray tap must never destroy a recording.)
                             GestureDetector(
-                              onTap: () {
-                                if (state.hasAudio) {
-                                  cubit.removeAudio();
-                                } else {
-                                  cubit.showRecordHint();
-                                }
-                              },
+                              onTap: cubit.showRecordHint,
                               onLongPressStart: (_) => cubit.startRecording(),
                               onLongPressMoveUpdate:
                                   (details) => cubit.updateDrag(

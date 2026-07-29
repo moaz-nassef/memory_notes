@@ -31,6 +31,16 @@ class NoteModel extends HiveObject {
   @HiveField(7)
   dynamic rawChecklist;
 
+  /// All voice recordings attached to this note.
+  /// (Replaces the legacy single [audioPath] — old notes still work,
+  /// see [allAudioPaths].)
+  @HiveField(8)
+  List<String>? audioPaths;
+
+  /// Duration (ms) for each entry in [audioPaths], same order.
+  @HiveField(9)
+  List<int>? audioDurationsMs;
+
   List<TaskModel>? get checklist {
     if (rawChecklist == null) return null;
     if (rawChecklist is List) {
@@ -59,20 +69,51 @@ class NoteModel extends HiveObject {
     required this.createdAt,
     required this.color,
     this.audioDurationMs,
+    this.audioPaths,
+    this.audioDurationsMs,
     List<TaskModel>? checklist,
   }) : rawChecklist = checklist;
+
+  /// Every recording on this note — new list first, falling back to
+  /// the legacy single [audioPath] so notes saved by older app
+  /// versions still show their audio.
+  List<String> get allAudioPaths {
+    final paths = audioPaths;
+    if (paths != null && paths.isNotEmpty) return paths;
+    final legacy = audioPath;
+    return legacy == null ? const [] : [legacy];
+  }
+
+  /// Durations aligned with [allAudioPaths] (0 = unknown).
+  List<int> get allAudioDurationsMs {
+    final paths = allAudioPaths;
+    final durations = audioDurationsMs;
+    if (durations == null || durations.isEmpty) {
+      // Legacy single-audio note.
+      if (audioPath != null && paths.length == 1) {
+        return [audioDurationMs ?? 0];
+      }
+      return List<int>.filled(paths.length, 0);
+    }
+    // Pad/truncate so indices always align with paths.
+    return List<int>.generate(
+      paths.length,
+      (i) => i < durations.length ? durations[i] : 0,
+    );
+  }
+
+  bool get hasAudio => allAudioPaths.isNotEmpty;
 
   bool get hasAnyContent {
     return (text != null && text!.trim().isNotEmpty) ||
         (imagePaths != null && imagePaths!.isNotEmpty) ||
-        audioPath != null ||
+        hasAudio ||
         (checklist != null && checklist!.isNotEmpty);
   }
 
   NoteType get type {
     final hasText = text != null && text!.trim().isNotEmpty;
     final hasImage = imagePaths != null && imagePaths!.isNotEmpty;
-    final hasAudio = audioPath != null;
     final hasChecklist = checklist != null && checklist!.isNotEmpty;
 
     final count =
@@ -95,6 +136,8 @@ class NoteModel extends HiveObject {
     DateTime? createdAt,
     int? color,
     int? audioDurationMs,
+    List<String>? audioPaths,
+    List<int>? audioDurationsMs,
     List<TaskModel>? checklist,
   }) {
     return NoteModel(
@@ -105,6 +148,8 @@ class NoteModel extends HiveObject {
       createdAt: createdAt ?? this.createdAt,
       color: color ?? this.color,
       audioDurationMs: audioDurationMs ?? this.audioDurationMs,
+      audioPaths: audioPaths ?? this.audioPaths,
+      audioDurationsMs: audioDurationsMs ?? this.audioDurationsMs,
       checklist: checklist ?? this.checklist,
     );
   }

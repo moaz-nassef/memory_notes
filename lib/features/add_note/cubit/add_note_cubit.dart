@@ -17,8 +17,6 @@ class AddNoteCubit extends Cubit<AddNoteState> {
   StreamSubscription<int>? _durationSub;
 
   NoteModel? _initialNote;
-  String? _previousAudioPath;
-  int? _previousAudioDurationMs;
 
   // ── Init ───────────────────────────────────────────────────────────
 
@@ -31,8 +29,8 @@ class AddNoteCubit extends Cubit<AddNoteState> {
       state.copyWith(
         imagePaths: List<String>.from(initial.imagePaths ?? []),
         checklistItems: List<TaskModel>.from(initial.checklist ?? []),
-        audioPath: () => initial.audioPath,
-        audioDurationMs: () => initial.audioDurationMs,
+        audioPaths: List<String>.from(initial.allAudioPaths),
+        audioDurationsMs: List<int>.from(initial.allAudioDurationsMs),
         selectedColor: Color(initial.color),
       ),
     );
@@ -93,8 +91,8 @@ class AddNoteCubit extends Cubit<AddNoteState> {
   // ── Audio recording ────────────────────────────────────────────────
 
   Future<void> startRecording() async {
-    _previousAudioPath = state.audioPath;
-    _previousAudioDurationMs = state.audioDurationMs;
+    // Never stack two recording sessions.
+    if (state.isRecording) return;
 
     emit(
       state.copyWith(
@@ -147,20 +145,24 @@ class AddNoteCubit extends Cubit<AddNoteState> {
 
     String? snackMessage;
     Color? snackColor;
-    String? newAudioPath = state.audioPath;
-    int? newAudioDurationMs = state.audioDurationMs;
+    var newAudioPaths = state.audioPaths;
+    var newAudioDurationsMs = state.audioDurationsMs;
 
     try {
       if (isDelete) {
         await _recorder.cancelRecording();
-        snackMessage = 'Current recording deleted';
+        snackMessage = 'Recording discarded';
         snackColor = AppColors.error;
       } else if (isSend) {
         final savedPath = await _recorder.stopRecording();
         if (savedPath != null) {
-          newAudioPath = savedPath;
-          newAudioDurationMs = state.recordingDurationMs;
-          snackMessage = 'Recording saved';
+          // Append — a note can hold several recordings now.
+          newAudioPaths = [...state.audioPaths, savedPath];
+          newAudioDurationsMs = [
+            ...state.audioDurationsMs,
+            state.recordingDurationMs,
+          ];
+          snackMessage = 'Recording added';
           snackColor = AppColors.success;
         }
       } else {
@@ -178,16 +180,11 @@ class AddNoteCubit extends Cubit<AddNoteState> {
     _amplitudeSub = null;
     _durationSub = null;
 
-    if (!isSend) {
-      newAudioPath = _previousAudioPath;
-      newAudioDurationMs = _previousAudioDurationMs;
-    }
-
     if (isClosed) return;
     emit(
       state.copyWith(
-        audioPath: () => newAudioPath,
-        audioDurationMs: () => newAudioDurationMs,
+        audioPaths: newAudioPaths,
+        audioDurationsMs: newAudioDurationsMs,
         isRecording: false,
         showVoiceOverlay: false,
         dragOffset: Offset.zero,
@@ -197,18 +194,24 @@ class AddNoteCubit extends Cubit<AddNoteState> {
     );
   }
 
-  Future<void> removeAudio() async {
-    final path = state.audioPath;
-    if (path != null) {
-      try {
-        await _recorder.delete(path);
-      } catch (_) {
-        // keep UX stable even if file was already removed
-      }
+  /// Removes one recording (by index) and deletes its file.
+  Future<void> removeAudio(int index) async {
+    if (index < 0 || index >= state.audioPaths.length) return;
+
+    try {
+      await _recorder.delete(state.audioPaths[index]);
+    } catch (_) {
+      // keep UX stable even if file was already removed
     }
 
     if (isClosed) return;
-    emit(state.copyWith(audioPath: () => null, audioDurationMs: () => null));
+    emit(
+      state.copyWith(
+        audioPaths: List<String>.from(state.audioPaths)..removeAt(index),
+        audioDurationsMs: List<int>.from(state.audioDurationsMs)
+          ..removeAt(index),
+      ),
+    );
   }
 
   void showRecordHint() => emit(
@@ -224,7 +227,8 @@ class AddNoteCubit extends Cubit<AddNoteState> {
     if (!_canSave(title: title, text: text)) {
       emit(
         state.copyWith(
-          snackMessage: () => 'Add a title and at least one content type',
+          snackMessage:
+              () => 'Add at least a title, text, image, recording or task',
           snackColor: () => AppColors.warning.withValues(alpha: 0.5),
         ),
       );
@@ -235,8 +239,11 @@ class AddNoteCubit extends Cubit<AddNoteState> {
       title: title.trim(),
       text: text.trim().isEmpty ? null : text.trim(),
       imagePaths: state.imagePaths.isEmpty ? null : List.from(state.imagePaths),
-      audioPath: state.audioPath,
-      audioDurationMs: state.audioDurationMs,
+      audioPaths: state.audioPaths.isEmpty ? null : List.from(state.audioPaths),
+      audioDurationsMs:
+          state.audioDurationsMs.isEmpty
+              ? null
+              : List.from(state.audioDurationsMs),
       checklist:
           state.checklistItems.isEmpty
               ? null
@@ -252,7 +259,7 @@ class AddNoteCubit extends Cubit<AddNoteState> {
     return title.trim().isNotEmpty ||
         text.trim().isNotEmpty ||
         state.imagePaths.isNotEmpty ||
-        state.audioPath != null ||
+        state.audioPaths.isNotEmpty ||
         state.checklistItems.isNotEmpty;
   }
 

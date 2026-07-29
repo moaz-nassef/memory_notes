@@ -1,6 +1,7 @@
 import 'package:get_it/get_it.dart';
 import 'package:hive/hive.dart';
 import 'package:memory_notes/core/constants/hive_keys.dart';
+import 'package:memory_notes/core/services/audio_playback_coordinator.dart';
 import 'package:memory_notes/core/services/audio_recorder_controller.dart';
 import 'package:memory_notes/core/services/audio_recorder_file_helper.dart';
 import 'package:memory_notes/features/add_note/cubit/add_note_cubit.dart';
@@ -19,6 +20,9 @@ void initDi() {
   // ── Core / Services (Singletons) ──────────────────────────────────
   sl.registerLazySingleton<AudioRecorderFileHelper>(
     () => AudioRecorderFileHelper(),
+  );
+  sl.registerLazySingleton<AudioPlaybackCoordinator>(
+    () => AudioPlaybackCoordinator(),
   );
   sl.registerLazySingleton<Box<NoteModel>>(
     () => Hive.box<NoteModel>(HiveKeys.notesBox),

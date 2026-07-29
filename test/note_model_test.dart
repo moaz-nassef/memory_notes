@@ -58,6 +58,53 @@ void main() {
     });
   });
 
+  group('NoteModel multi-audio', () {
+    test('legacy audioPath still works via allAudioPaths', () {
+      final note = buildNote(audioPath: 'old.m4a');
+      expect(note.allAudioPaths, ['old.m4a']);
+      expect(note.hasAudio, isTrue);
+      expect(note.type, NoteType.audio);
+    });
+
+    test('new audioPaths list takes priority over legacy field', () {
+      final note = NoteModel(
+        title: '',
+        createdAt: DateTime(2026, 1, 1),
+        color: 0xFF667EEA,
+        audioPath: 'legacy.m4a',
+        audioPaths: ['a.m4a', 'b.m4a'],
+      );
+      expect(note.allAudioPaths, ['a.m4a', 'b.m4a']);
+    });
+
+    test('note without any recording has no audio', () {
+      expect(buildNote().allAudioPaths, isEmpty);
+      expect(buildNote().hasAudio, isFalse);
+    });
+
+    test('durations align with paths (missing entries become 0)', () {
+      final note = NoteModel(
+        title: '',
+        createdAt: DateTime(2026, 1, 1),
+        color: 0xFF667EEA,
+        audioPaths: ['a.m4a', 'b.m4a', 'c.m4a'],
+        audioDurationsMs: [1000, 2000],
+      );
+      expect(note.allAudioDurationsMs, [1000, 2000, 0]);
+    });
+
+    test('legacy single audio uses legacy duration', () {
+      final note = NoteModel(
+        title: '',
+        createdAt: DateTime(2026, 1, 1),
+        color: 0xFF667EEA,
+        audioPath: 'old.m4a',
+        audioDurationMs: 5000,
+      );
+      expect(note.allAudioDurationsMs, [5000]);
+    });
+  });
+
   group('NoteModel.copyWith', () {
     test('overrides only provided fields', () {
       final original = buildNote(

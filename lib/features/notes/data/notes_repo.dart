@@ -34,25 +34,42 @@ class NotesRepo {
   Future<void> addNote(NoteModel note) => _notesBox.add(note);
 
   /// Copies the edited fields into the existing (Hive-managed) note.
+  ///
+  /// Any recording that was removed during the edit gets its file
+  /// deleted, so no orphaned audio piles up on disk.
   Future<void> updateNote(NoteModel existing, NoteModel edited) async {
+    final removedPaths =
+        existing.allAudioPaths
+            .where((path) => !edited.allAudioPaths.contains(path))
+            .toList();
+
     existing
       ..title = edited.title
       ..text = edited.text
       ..imagePaths = edited.imagePaths
-      ..audioPath = edited.audioPath
-      ..audioDurationMs = edited.audioDurationMs
+      ..audioPath =
+          null // legacy field — list fields are the source of truth
+      ..audioDurationMs = null
+      ..audioPaths = edited.audioPaths
+      ..audioDurationsMs = edited.audioDurationsMs
       ..checklist = edited.checklist
       ..color = edited.color;
     await existing.save();
+
+    for (final path in removedPaths) {
+      try {
+        await _audioFileHelper.deleteRecord(path);
+      } catch (_) {
+        // Ignore file-delete errors; the note is already saved.
+      }
+    }
   }
 
-  /// Deletes the note record and its audio file (if any).
+  /// Deletes the note record and all of its audio files (if any).
   Future<void> deleteNoteWithAudio(NoteModel note) async {
-    final audioPath = note.audioPath;
-
-    if (audioPath != null && audioPath.isNotEmpty) {
+    for (final path in note.allAudioPaths) {
       try {
-        await _audioFileHelper.deleteRecord(audioPath);
+        await _audioFileHelper.deleteRecord(path);
       } catch (_) {
         // Ignore file-delete errors and continue deleting note record.
       }
