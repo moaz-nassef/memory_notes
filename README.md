@@ -2,128 +2,209 @@
 
 # 🧠 Memory Notes
 
-**Capture every thought — text, voice, images & checklists — beautifully offline.**
+> **Capture everything your brain forgets — text, voice, images & checklists — instantly, beautifully, and fully offline.**
 
 [![Flutter](https://img.shields.io/badge/Flutter-3.7+-blue?style=for-the-badge&logo=flutter&logoColor=white&color=02569B)](https://flutter.dev)
-[![Dart](https://img.shields.io/badge/Dart-3.x-0175C2?style=for-the-badge&logo=dart&logoColor=white&color=02569B)](https://dart.dev)
-[![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
-[![Platform](https://img.shields.io/badge/Platform-Android%20%7C%20iOS%20%7C%20Web%20%7C%20Windows-purple?style=for-the-badge)]
+[![Dart](https://img.shields.io/badge/Dart-3.x-0175C2?style=for-the-badge&logo=dart&logoColor=white&color=0175C2)](https://dart.dev)
+[![State Management](https://img.shields.io/badge/State-Blocs%20%2B%20Cubits-purple?style=for-the-badge&color=7C6CFF)](https://pub.dev/packages/flutter_bloc)
+[![Storage](https://img.shields.io/badge/Storage-Hive-orange?style=for-the-badge&color=FF5CA8)](https://pub.dev/packages/hive)
+[![Platform](https://img.shields.io/badge/Platform-Android%20%E2%80%A2%20iOS%20%E2%80%A2%20Web%20%E2%80%A2%20Desktop-4ECDC4?style=for-the-badge)]
+[![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge&color=4CC38A)]()
 
 </div>
 
 ---
 
-## ✨ About the Project
+## 🚀 What is Memory Notes?
 
-**Memory Notes** is a modern note‑taking application built with **Flutter** that lets you capture ideas in every format:
+**Memory Notes** is a modern, **offline-first** note‑taking app that lets you think in **any format** — no account, no cloud, no waiting.
 
-- ✍️ **Text notes** with rich editing
-- 🎤 **Voice notes** with built‑in recorder & playback
-- 🖼️ **Image notes** from your gallery or camera
-- ☑️ **Checklists / To‑do lists**
-- 🧬 **Mixed notes** — combine text, audio, images & checklists in one place
+It stores everything **locally on your device** with [Hive](https://pub.dev/packages/hive), the ultra‑fast NoSQL database, so your ideas are always with you — even on a plane ✈️, in a tunnel 🚇, or in the middle of the desert 🏜️.
 
-Everything is stored **locally on your device** using [Hive](https://pub.dev/packages/hive) — fast, offline‑first, and fully private. No account, no cloud required. 📴
+Every note is a **living object** that can mix together:
 
-A beautiful **dark theme** with an **aurora‑style animated background**, smooth transitions, and a delightful onboarding flow makes organizing your life feel effortless.
+- ✍️ **Text** — write freely
+- 🎤 **Voice memos** — record directly into the app
+- 🖼️ **Images** — from gallery or camera, with slideshow
+- ☑️ **Checklists** — simple to‑do lists
+- 🧬 **Mixed** — combine all of the above in one single note
+
+And all of it is wrapped in a **stunning animated dark UI** — an aurora‑style background, glass‑morphism cards, bouncy buttons, and buttery transition animations.
 
 ---
 
-## 🚀 Features
+## ✨ Why it feels special
 
-| Feature | Description |
+| Area | What was built |
 |---|---|
-| 📝 **Multiple Note Types** | Text, image, audio, checklist, and mixed notes |
-| 🎙️ **Voice Recording** | Record, replay & attach multiple audio clips per note |
-| 🖼️ **Image Attachments** | Pick images with full-screen preview & slideshow |
-| ☑️ **Checklists** | Create and manage task lists inside any note |
-| 🎨 **Color Coding** | Assign colors to your notes for quick visual scanning |
-| 🔎 **Powerful Search** | Filter notes instantly by keyword & type |
-| 📡 **Connectivity Aware** | Smart offline/online snackbar notifications |
-| 🌌 **Aurora UI** | Animated gradient backgrounds & buttery‑smooth transitions |
-| 🚀 **Onboarding** | A polished first‑run experience |
-| 📦 **Fully Offline** | Local Hive storage — your notes always with you |
+| 🎙️ **Audio manager** | Every note supports **multiple voice recordings**. One global coordinator makes sure only **one audio plays at a time** (like WhatsApp/Telegram). |
+| 🔎 **Smart Arabic search** | A custom search engine that **understands Arabic** — normalizes characters, removes diacritics, ignores tatweel, and ranks results by relevance. |
+| 🌌 **Aurora UI** | A custom-painted, slowly drifting animated background with purple, teal & pink light blobs. |
+| 🪶 **Micro‑interactions** | Bouncy FAB, staggered card entrances, animated gradient headline, pulsing record button. |
+| 📴 **Offline‑first** | Real connectivity detection (not just WiFi checks) + smart "offline" snackbars. |
+| 🧺 **Orphan cleanup** | When you edit a note and remove an audio file, the physical file is **deleted from disk** too — no junk accumulating. |
+
+---
+
+## 🌟 Features
+
+### 🎙️ Voice Notes — done properly
+- Record directly inside the note editor with a **pulsing, animated mic button**.
+- **Long‑press to record**, drag:
+  - ⬅️ left to **delete**
+  - ⬆️ up to **send/attach**
+- Live **amplitude waves** while recording.
+- Attach **multiple recordings** per note — each stored as a separate file with its own duration.
+- **Smart playback coordinator**: starting one recording automatically stops any other — no overlapping audio chaos.
+- **Orphan-file cleanup**: files that are no longer referenced are removed from disk on save.
+
+### 🖼️ Images
+- Pick from your **gallery** or **camera**.
+- Full‑screen **preview**, zoom-in experience.
+- **Slideshow** mode for image notes.
+
+### ☑️ Checklists
+- Keep a to‑do list right inside your note.
+- Every task tracks its own **done state**.
+- Checklists are **searchable** alongside your text.
+
+### 🔎 Smart Search — built for Arabic
+Searching Arabic is tricky. Memory Notes **normalizes** the query so your typing always finds what you meant:
+
+| Your input | Normalized to |
+|---|---|
+| `أحمد` `إحمد` `آحمد` | `احمد` |
+| `مؤسسة` (diacritics) | `مؤسسة` → diacritics removed |
+| `حبيبتي` / `حبيبتى` | `حبيبتي` ( ى → ي ) |
+| `تطويل ــــ` (tatweel) | removed |
+
+- Searches **titles, body text, AND checklist items** — everything in one shot.
+- **Ranked** results: the best match floats to the top.
+- Full‑screen search page with live results, dark glass theme, and friendly empty states.
+
+### 🔐 Onboarding
+A polished, three‑page first‑run experience:
+> *"Your brain's external drive"* → *"Make every note yours"* → *"Works offline. Seriously."*
+
+It appears **once**, then never again (remembered locally with Hive).
+
+### 📡 Connectivity & Offline UX
+- Connectivity is checked with a **real internet probe** (`InternetAddress.lookup`), not just "is WiFi on".
+- A smart notification appears **only when the status actually flips**:
+  - 🟢 *"Back online"*
+  - 🔴 *"You're offline — notes keep working"*
+
+### 🎨 Colour Coding
+Every note can have a **colour identity** — pick from a beautiful palette in the editor for quick visual scanning.
 
 ---
 
 ## 🧱 Tech Stack
 
-<div align="center">
-
-| 🛠️ Tool | Purpose |
+| Technology | Why |
 |---|---|
-| [Flutter](https://flutter.dev) | Cross‑platform UI framework |
-| [Hive](https://pub.dev/packages/hive) | Ultra‑fast local NoSQL storage |
-| [flutter_bloc](https://pub.dev/packages/flutter_bloc) | Predictable state management |
-| [get_it](https://pub.dev/packages/get_it) | Service locator & DI |
-| [audioplayers](https://pub.dev/packages/audioplayers) | Audio playback |
-| [record](https://pub.dev/packages/record) | Voice recording |
-| [image_picker](https://pub.dev/packages/image_picker) | Gallery / camera access |
+| [Flutter](https://flutter.dev) | One codebase, all platforms |
+| [Hive](https://pub.dev/packages/hive) + hive_flutter | Instant, local, key-value storage |
+| [flutter_bloc](https://pub.dev/packages/flutter_bloc) | Predictable, testable state management |
+| [get_it](https://pub.dev/packages/get_it) | Simple dependency injection |
+| [record](https://pub.dev/packages/record) | High-quality voice recording (`.m4a`) |
+| [audioplayers](https://pub.dev/packages/audioplayers) | Playback of attached voice notes |
+| [path_provider](https://pub.dev/packages/path_provider) | Where audio files live on disk |
 | [connectivity_plus](https://pub.dev/packages/connectivity_plus) | Network status detection |
-| [permission_handler](https://pub.dev/packages/permission_handler) | Runtime permissions |
-
-</div>
+| [permission_handler](https://pub.dev/packages/permission_handler) | Clean runtime permission handling |
+| [image_picker](https://pub.dev/packages/image_picker) | Gallery & camera access |
+| [flutter_image_slideshow](https://pub.dev/packages/flutter_image_slideshow) | Slideshow for image notes |
 
 ---
 
-## 📂 Project Structure
+## 🧬 Architecture
+
+Clean, **feature-based** architecture with clear separation of concerns:
 
 ```
 lib/
-├── app_router.dart              # Named routes
-├── main.dart                    # App entry point & Hive bootstrap
+├── main.dart                     # Bootstrap: Hive init + DI wiring
+├── app_router.dart               # Named routes + custom transitions
 ├── core/
-│   ├── constants/               # Colors & Hive keys
-│   ├── services/                # Audio recorder & playback coordinator
-│   ├── theme/                   # App theme
-│   └── di_container.dart        # Dependency injection
+│   ├── constants/                # App colours, Hive keys
+│   ├── services/                 # Audio recorder, playback coordinator, file helper
+│   ├── theme/                    # Dark Material theme
+│   └── di_container.dart         # get_it service locator
 ├── features/
-│   ├── add_note/                # Create/edit note (cubit + view)
-│   ├── connectivity/            # Online/offline detection
-│   ├── notes/                   # Notes list, search, repo (BLoC)
-│   └── onboarding/              # First-run onboarding
-├── models/                      # NoteModel & TaskModel (Hive)
-└── shared/                      # Reusable widgets, audio & effects
+│   ├── notes/                    # Notes list, repo, search + cubit
+│   ├── add_note/                 # Create/edit note (cubit + widgets)
+│   ├── connectivity/             # Real connectivity cubit + notifier
+│   └── onboarding/               # First-run walkthrough
+├── models/                       # NoteModel, TaskModel (Hive-annotated)
+└── shared/
+    ├── audio/                    # Player widget, voice overlay, badges
+    ├── effects/                  # Aurora, bouncy FAB, staggered slide, gradient text
+    ├── image/                    # Picker page, preview widgets
+    ├── checklist/                # Checklist widget
+    ├── color/                    # Colour picker sheet
+    └── text/                     # Title & body fields
 ```
+
+**Key design decisions:**
+
+- 🧩 **State management** — Cubits listen to the Hive box as a **`Stream`**, so the UI updates **reactively** the moment anything changes.
+- 🧰 **Single `NotesRepo`** is the single source of truth for all note operations (create, update, delete with audio cleanup).
+- 🎛️ **`AudioPlaybackCoordinator`** — a singleton that guarantees **one playback at a time** app-wide.
+- 🗂️ **Hive adapters** are registered only **once** at startup (with guard, no double registration crashes).
 
 ---
 
 ## ✅ Getting Started
 
 ### Prerequisites
-- 🦋 **Flutter SDK** `>= 3.7.0`
-- Any supported device (Android / iOS / Web / Desktop)
 
-### Installation
+- 🦋 Flutter SDK `>= 3.7.0`
+
+### Run it
 
 ```bash
-# 1️⃣ Clone the repository
+# 1. Clone
 git clone https://github.com/moaz-nassef/memory_notes.git
 cd memory_notes
 
-# 2️⃣ Install dependencies
+# 2. Install dependencies
 flutter pub get
 
-# 3️⃣ Run the app
+# 3. Launch
 flutter run
 ```
 
 ### Build a release
 
 ```bash
-flutter build apk --release    # 📱 Android
-flutter build ios --release    # 🍎 iOS
+flutter build apk --release   # 📱 Android
+flutter build ios --release   # 🍎 iOS
 ```
 
 ---
 
-## 🧭 Roadmap
+## 🧪 Tests
 
-- [x] Text, audio, image, checklist & mixed notes
-- [x] Voice recording & multi‑audio playback
-- [x] Offline‑first Hive storage
-- [x] Global search
-- [ ] 📤 Notes export (PDF / text)
+Quality matters — the search engine and the data model are covered:
+
+```bash
+flutter test
+```
+
+- ✅ **`notes_search_test.dart`** — Arabic normalization + ranking & filtering logic
+- ✅ **`note_model_test.dart`** — content detection & note-type classification
+
+---
+
+## 🗺️ Roadmap
+
+- [x] Text / image / audio / checklist / mixed notes
+- [x] Multi‑audio voice notes with playback coordinator
+- [x] Global search across titles, text & checklists
+- [x] Real offline‑first storage with Hive
+- [x] Animated aurora dark UI & micro-interactions
+- [x] Orphan audio-file cleanup
+- [ ] 📤 Export notes (PDF / TXT)
 - [ ] 🔐 Optional biometric lock
 - [ ] ☁️ Optional cloud sync
 
@@ -133,15 +214,15 @@ flutter build ios --release    # 🍎 iOS
 
 Contributions are always welcome! 🎉
 
-1. 🍴 Fork the repository
-2. 🌿 Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. 💾 Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. 📤 Push to the branch (`git push origin feature/amazing-feature`)
+1. 🍴 Fork the repo
+2. 🌿 Create your branch (`git checkout -b feature/amazing`)
+3. 💾 Commit (`git commit -m 'Add amazing thing'`)
+4. 📤 Push (`git push origin feature/amazing`)
 5. 🔀 Open a Pull Request
 
 ---
 
-## 📞 Contact
+## 🧑‍💻 Author
 
 **Moaz Nassef** — [GitHub](https://github.com/moaz-nassef)
 
@@ -151,6 +232,6 @@ Contributions are always welcome! 🎉
 
 Made with 💜 using Flutter & Dart
 
-⭐ **Don't forget to star this repo if you like it!** ⭐
+⭐ **If you like it, please star the repo!** ⭐
 
 </div>
