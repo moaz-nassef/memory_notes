@@ -3,9 +3,12 @@ import 'package:memory_notes/core/constants/app_colors.dart';
 import 'package:memory_notes/shared/effects/animated_gradient_text.dart';
 
 class Header extends StatelessWidget {
-  const Header({super.key, required this.noteCount});
+  const Header({super.key, required this.noteCount, required this.onSearchTap});
 
   final int noteCount;
+
+  /// Called when the search icon is tapped.
+  final VoidCallback onSearchTap;
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +50,7 @@ class Header extends StatelessWidget {
             ],
           ),
           const Spacer(),
-          _GlassIconButton(icon: Icons.search_rounded, onPressed: () {}),
+          _GlassIconButton(icon: Icons.search_rounded, onPressed: onSearchTap),
         ],
       ),
     );

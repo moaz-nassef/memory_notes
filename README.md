@@ -2,7 +2,7 @@
 
 # 🧠 Memory Notes
 
-> **Capture everything your brain forgets — text, voice, images & checklists — instantly, beautifully, and fully offline.**
+> **Capture everything your brain forgets — text, voice, images & checklists — then let AI turn spoken thoughts into clear, actionable notes.**
 
 [![Flutter](https://img.shields.io/badge/Flutter-3.7+-blue?style=for-the-badge&logo=flutter&logoColor=white&color=02569B)](https://flutter.dev)
 [![Dart](https://img.shields.io/badge/Dart-3.x-0175C2?style=for-the-badge&logo=dart&logoColor=white&color=0175C2)](https://dart.dev)
@@ -38,6 +38,7 @@ And all of it is wrapped in a **stunning animated dark UI** — an aurora‑styl
 | Area | What was built |
 |---|---|
 | 🎙️ **Audio manager** | Every note supports **multiple voice recordings**. One global coordinator makes sure only **one audio plays at a time** (like WhatsApp/Telegram). |
+| ✨ **Voice AI** | Record naturally; AI transcribes the audio, creates a title, organizes the text, and extracts actionable tasks for you to review. |
 | 🔎 **Smart Arabic search** | A custom search engine that **understands Arabic** — normalizes characters, removes diacritics, ignores tatweel, and ranks results by relevance. |
 | 🌌 **Aurora UI** | A custom-painted, slowly drifting animated background with purple, teal & pink light blobs. |
 | 🪶 **Micro‑interactions** | Bouncy FAB, staggered card entrances, animated gradient headline, pulsing record button. |
@@ -47,6 +48,14 @@ And all of it is wrapped in a **stunning animated dark UI** — an aurora‑styl
 ---
 
 ## 🌟 Features
+
+### ✨ Voice Notes with AI
+- Record one spoken thought and get a **structured draft**: title, organized note text, and checklist tasks with durations when they are mentioned.
+- The generated note opens in a dedicated **review screen**: edit the title, text, and tasks before saving anything.
+- Add a **follow-up recording** while reviewing an AI note; the new transcript is merged into the existing note instead of replacing it.
+- Recent local note titles and text provide bounded context, so the result understands your existing topics without storing notes in the cloud.
+- If analysis fails or the connection is unavailable, the recording remains safe locally and can be retried or saved as an audio-only note.
+- Analysis runs through a Supabase Edge Function using Groq speech-to-text and structured JSON extraction; the app never ships an AI provider secret.
 
 ### 🎙️ Voice Notes — done properly
 - Record directly inside the note editor with a **pulsing, animated mic button**.
@@ -114,6 +123,9 @@ Every note can have a **colour identity** — pick from a beautiful palette in t
 | [permission_handler](https://pub.dev/packages/permission_handler) | Clean runtime permission handling |
 | [image_picker](https://pub.dev/packages/image_picker) | Gallery & camera access |
 | [flutter_image_slideshow](https://pub.dev/packages/flutter_image_slideshow) | Slideshow for image notes |
+| [http](https://pub.dev/packages/http) + http_parser | Secure multipart upload to the voice-analysis service |
+| [Supabase Edge Functions](https://supabase.com/docs/guides/functions) | Keeps voice-analysis credentials server-side |
+| [Groq](https://groq.com) | Speech-to-text and structured AI note extraction |
 
 ---
 
@@ -133,6 +145,7 @@ lib/
 ├── features/
 │   ├── notes/                    # Notes list, repo, search + cubit
 │   ├── add_note/                 # Create/edit note (cubit + widgets)
+│   ├── voice_analysis/           # AI recording, analysis, review + follow-ups
 │   ├── connectivity/             # Real connectivity cubit + notifier
 │   └── onboarding/               # First-run walkthrough
 ├── models/                       # NoteModel, TaskModel (Hive-annotated)
@@ -143,6 +156,8 @@ lib/
     ├── checklist/                # Checklist widget
     ├── color/                    # Colour picker sheet
     └── text/                     # Title & body fields
+supabase/
+└── functions/voice-analyze/      # Secure speech-to-note Edge Function
 ```
 
 **Key design decisions:**
@@ -151,6 +166,7 @@ lib/
 - 🧰 **Single `NotesRepo`** is the single source of truth for all note operations (create, update, delete with audio cleanup).
 - 🎛️ **`AudioPlaybackCoordinator`** — a singleton that guarantees **one playback at a time** app-wide.
 - 🗂️ **Hive adapters** are registered only **once** at startup (with guard, no double registration crashes).
+- 🔐 **AI secrets stay server-side** — the Flutter client uploads audio to the Edge Function; the Groq API key is read only from server environment variables.
 
 ---
 
@@ -181,11 +197,26 @@ flutter build apk --release   # 📱 Android
 flutter build ios --release   # 🍎 iOS
 ```
 
+### Enable Voice AI (optional)
+
+Normal note-taking remains fully offline. Voice AI needs the included Supabase function deployed with a server-side `GROQ_API_KEY`:
+
+```bash
+supabase functions deploy voice-analyze
+supabase secrets set GROQ_API_KEY=your_groq_key
+```
+
+Override the deployed endpoint when needed:
+
+```bash
+flutter run --dart-define=VOICE_ANALYSIS_API_BASE_URL=https://your-project.supabase.co/functions/v1
+```
+
 ---
 
 ## 🧪 Tests
 
-Quality matters — the search engine and the data model are covered:
+Quality matters — the search engine, data model, AI response parsing, and review flow are covered:
 
 ```bash
 flutter test
@@ -193,6 +224,8 @@ flutter test
 
 - ✅ **`notes_search_test.dart`** — Arabic normalization + ranking & filtering logic
 - ✅ **`note_model_test.dart`** — content detection & note-type classification
+- ✅ **`voice_analysis_result_test.dart`** — validates safe parsing of structured AI responses
+- ✅ **`voice_review_screen_test.dart`** — validates the editable AI review experience
 
 ---
 
@@ -204,6 +237,8 @@ flutter test
 - [x] Real offline‑first storage with Hive
 - [x] Animated aurora dark UI & micro-interactions
 - [x] Orphan audio-file cleanup
+- [x] AI voice-to-note: transcript, title, text & task extraction
+- [x] AI follow-up recordings merged into the note under review
 - [ ] 📤 Export notes (PDF / TXT)
 - [ ] 🔐 Optional biometric lock
 - [ ] ☁️ Optional cloud sync

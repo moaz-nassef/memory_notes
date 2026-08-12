@@ -47,7 +47,8 @@ dependencies:
   get_it: ^9.2.1
   path: ^1.9.1
   connectivity_plus: ^7.3.1
-
+  http: 1.6.0
+  http_parser: ^4.1.2
 dev_dependencies:
   hive_generator: ^2.0.1
   build_runner: ^2.4.6

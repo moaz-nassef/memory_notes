@@ -6,6 +6,8 @@ import 'package:memory_notes/features/notes/cubit/notes_cubit.dart';
 import 'package:memory_notes/features/notes/cubit/notes_state.dart';
 import 'package:memory_notes/features/notes/widgets/header.dart';
 import 'package:memory_notes/features/notes/widgets/note_card.dart';
+import 'package:memory_notes/features/notes/widgets/notes_search_delegate.dart';
+import 'package:memory_notes/features/voice_analysis/views/voice_ai_capture_screen.dart';
 import 'package:memory_notes/models/note_model.dart';
 import 'package:memory_notes/shared/effects/aurora_background.dart';
 import 'package:memory_notes/shared/effects/bouncy_fab.dart';
@@ -54,9 +56,26 @@ class NotesListScreen extends StatelessWidget {
           ),
         ),
       ),
-      floatingActionButton: BouncyFab(
-        onPressed: () => _openAddNote(context),
-        icon: Icons.add_rounded,
+      floatingActionButton: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Semantics(
+            label: 'Create note with voice AI',
+            button: true,
+            child: BouncyFab(
+              key: const Key('home_voice_ai_note'),
+              onPressed: () => _openVoiceAiNote(context),
+              icon: Icons.mic_rounded,
+              backgroundColor: AppColors.accent,
+            ),
+          ),
+          const SizedBox(width: 12),
+          BouncyFab(
+            key: const Key('home_new_note'),
+            onPressed: () => _openAddNote(context),
+            icon: Icons.add_rounded,
+          ),
+        ],
       ),
     );
   }
@@ -64,7 +83,10 @@ class NotesListScreen extends StatelessWidget {
   Widget _buildNotesList(BuildContext context, List<NoteModel> notes) {
     return Column(
       children: [
-        Header(noteCount: notes.length),
+        Header(
+          noteCount: notes.length,
+          onSearchTap: () => _openSearch(context),
+        ),
         Expanded(
           child:
               notes.isEmpty
@@ -148,9 +170,30 @@ class NotesListScreen extends StatelessWidget {
     );
   }
 
+  /// Opens the full-screen search page; picking a note opens it
+  /// in the editor, exactly like tapping it in the list.
+  Future<void> _openSearch(BuildContext context) async {
+    final selected = await showSearch<NoteModel?>(
+      context: context,
+      delegate: NotesSearchDelegate(),
+    );
+    if (selected != null && context.mounted) {
+      await _openEditNote(context, selected);
+    }
+  }
+
   Future<void> _openAddNote(BuildContext context) async {
     final newNote = await Navigator.pushNamed(context, AppRoutes.addNote);
     if (newNote is NoteModel && context.mounted) {
+      await context.read<NotesCubit>().addNote(newNote);
+    }
+  }
+
+  Future<void> _openVoiceAiNote(BuildContext context) async {
+    final newNote = await Navigator.of(context).push<NoteModel>(
+      MaterialPageRoute(builder: (_) => const VoiceAiCaptureScreen()),
+    );
+    if (newNote != null && context.mounted) {
       await context.read<NotesCubit>().addNote(newNote);
     }
   }

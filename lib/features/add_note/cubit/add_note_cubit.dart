@@ -139,14 +139,15 @@ class AddNoteCubit extends Cubit<AddNoteState> {
 
   void updateDrag(Offset offset) => emit(state.copyWith(dragOffset: offset));
 
-  Future<void> endRecording() async {
+  Future<String?> endRecording({bool saveRegardlessOfDrag = false}) async {
     final isDelete = state.dragOffset.dx < -80;
-    final isSend = state.dragOffset.dy < -80;
+    final isSend = saveRegardlessOfDrag || state.dragOffset.dy < -80;
 
     String? snackMessage;
     Color? snackColor;
     var newAudioPaths = state.audioPaths;
     var newAudioDurationsMs = state.audioDurationsMs;
+    String? savedAudioPath;
 
     try {
       if (isDelete) {
@@ -162,6 +163,7 @@ class AddNoteCubit extends Cubit<AddNoteState> {
             ...state.audioDurationsMs,
             state.recordingDurationMs,
           ];
+          savedAudioPath = savedPath;
           snackMessage = 'Recording added';
           snackColor = AppColors.success;
         }
@@ -180,7 +182,7 @@ class AddNoteCubit extends Cubit<AddNoteState> {
     _amplitudeSub = null;
     _durationSub = null;
 
-    if (isClosed) return;
+    if (isClosed) return null;
     emit(
       state.copyWith(
         audioPaths: newAudioPaths,
@@ -190,6 +192,32 @@ class AddNoteCubit extends Cubit<AddNoteState> {
         dragOffset: Offset.zero,
         snackMessage: () => snackMessage,
         snackColor: () => snackColor,
+      ),
+    );
+    return savedAudioPath;
+  }
+
+  Future<void> cancelActiveRecording() async {
+    if (!state.isRecording) return;
+
+    try {
+      await _recorder.cancelRecording();
+    } catch (_) {
+      // Closing the AI capture screen must remain safe if recording stopped.
+    }
+    await _amplitudeSub?.cancel();
+    await _durationSub?.cancel();
+    _amplitudeSub = null;
+    _durationSub = null;
+
+    if (isClosed) return;
+    emit(
+      state.copyWith(
+        isRecording: false,
+        showVoiceOverlay: false,
+        dragOffset: Offset.zero,
+        snackMessage: () => null,
+        snackColor: () => null,
       ),
     );
   }

@@ -112,10 +112,11 @@ class _AddNoteViewState extends State<_AddNoteView>
                   duration: const Duration(milliseconds: 400),
                   decoration: BoxDecoration(
                     gradient: RadialGradient(
-                      center: const Alignment(0, -1.2),
-                      radius: 1.4,
+                      center: const Alignment(0, -1.05),
+                      radius: 1.25,
                       colors: [
-                        state.selectedColor.withValues(alpha: 0.16),
+                        state.selectedColor.withValues(alpha: 0.30),
+                        state.selectedColor.withValues(alpha: 0.08),
                         AppColors.scaffoldDark.withValues(alpha: 0),
                       ],
                     ),
@@ -125,9 +126,24 @@ class _AddNoteViewState extends State<_AddNoteView>
                   duration: const Duration(milliseconds: 400),
                   decoration: BoxDecoration(
                     gradient: RadialGradient(
-                      center: const Alignment(0.8, 1.2),
-                      radius: 1.2,
+                      center: const Alignment(0.95, 1.05),
+                      radius: 0.85,
                       colors: [
+                        state.selectedColor.withValues(alpha: 0.15),
+                        state.selectedColor.withValues(alpha: 0.08),
+                        AppColors.scaffoldDark.withValues(alpha: 0),
+                      ],
+                    ),
+                  ),
+                ),
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 400),
+                  decoration: BoxDecoration(
+                    gradient: RadialGradient(
+                      center: const Alignment(-0.95, 1.05),
+                      radius: 0.85,
+                      colors: [
+                        state.selectedColor.withValues(alpha: 0.15),
                         state.selectedColor.withValues(alpha: 0.08),
                         AppColors.scaffoldDark.withValues(alpha: 0),
                       ],
