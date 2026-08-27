@@ -1,4 +1,4 @@
-<div align="center">
+﻿<div align="center">
 
 # 🧠 Memory Notes
 
@@ -270,3 +270,15 @@ Made with 💜 using Flutter & Dart
 ⭐ **If you like it, please star the repo!** ⭐
 
 </div>
+
+<!-- SCREENSHOTS-AUTO-START -->
+## Screenshots
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/moaz-nassef/memory_notes/main/screenshots/cover.png" alt="Cover" width="720"/>
+</p>
+
+<p align="center"><img src="https://raw.githubusercontent.com/moaz-nassef/memory_notes/main/screenshots/%D8%B5%D9%88%D8%B1%D8%A9%2010%20.jpeg" alt="صورة 10 " width="200"/>  <img src="https://raw.githubusercontent.com/moaz-nassef/memory_notes/main/screenshots/%D8%B5%D9%88%D8%B1%D8%A9%202%20.jpeg" alt="صورة 2 " width="200"/>  <img src="https://raw.githubusercontent.com/moaz-nassef/memory_notes/main/screenshots/%D8%B5%D9%88%D8%B1%D8%A9%203%20.jpeg" alt="صورة 3 " width="200"/></p>
+<p align="center"><img src="https://raw.githubusercontent.com/moaz-nassef/memory_notes/main/screenshots/%D8%B5%D9%88%D8%B1%D8%A9%204.jpeg" alt="صورة 4" width="200"/>  <img src="https://raw.githubusercontent.com/moaz-nassef/memory_notes/main/screenshots/%D8%B5%D9%88%D8%B1%D8%A9%205%20.jpeg" alt="صورة 5 " width="200"/>  <img src="https://raw.githubusercontent.com/moaz-nassef/memory_notes/main/screenshots/%D8%B5%D9%88%D8%B1%D8%A9%206%20.jpeg" alt="صورة 6 " width="200"/></p>
+<p align="center"><img src="https://raw.githubusercontent.com/moaz-nassef/memory_notes/main/screenshots/%D8%B5%D9%88%D8%B1%D8%A9%207%20.jpeg" alt="صورة 7 " width="200"/>  <img src="https://raw.githubusercontent.com/moaz-nassef/memory_notes/main/screenshots/%D8%B5%D9%88%D8%B1%D8%A9%208%20.jpeg" alt="صورة 8 " width="200"/>  <img src="https://raw.githubusercontent.com/moaz-nassef/memory_notes/main/screenshots/%D8%B5%D9%88%D8%B1%D8%A9%209%20.jpeg" alt="صورة 9 " width="200"/></p>
+<!-- SCREENSHOTS-AUTO-END -->
