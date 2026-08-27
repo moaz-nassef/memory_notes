@@ -1,6 +1,15 @@
 ﻿<div align="center">
 
 # 🧠 Memory Notes
+<p align="center">
+  <img src="https://raw.githubusercontent.com/moaz-nassef/memory_notes/main/screenshots/cover.png" alt="memory_notes cover" width="720"/>
+</p>
+
+<p align="center">
+  <a href="#screenshots">
+    <img src="https://img.shields.io/badge/View_All_Screenshots-02569B?style=for-the-badge&logo=image&logoColor=white" alt="View all screenshots"/>
+  </a>
+</p>
 
 > **Capture everything your brain forgets — text, voice, images & checklists — then let AI turn spoken thoughts into clear, actionable notes.**
 
@@ -274,9 +283,7 @@ Made with 💜 using Flutter & Dart
 <!-- SCREENSHOTS-AUTO-START -->
 ## Screenshots
 
-<p align="center">
-  <img src="https://raw.githubusercontent.com/moaz-nassef/memory_notes/main/screenshots/cover.png" alt="Cover" width="720"/>
-</p>
+Below are all the app screenshots. The cover image is shown above; tap the button under it to jump back here.
 
 <p align="center"><img src="https://raw.githubusercontent.com/moaz-nassef/memory_notes/main/screenshots/%D8%B5%D9%88%D8%B1%D8%A9%2010%20.jpeg" alt="صورة 10 " width="200"/>  <img src="https://raw.githubusercontent.com/moaz-nassef/memory_notes/main/screenshots/%D8%B5%D9%88%D8%B1%D8%A9%202%20.jpeg" alt="صورة 2 " width="200"/>  <img src="https://raw.githubusercontent.com/moaz-nassef/memory_notes/main/screenshots/%D8%B5%D9%88%D8%B1%D8%A9%203%20.jpeg" alt="صورة 3 " width="200"/></p>
 <p align="center"><img src="https://raw.githubusercontent.com/moaz-nassef/memory_notes/main/screenshots/%D8%B5%D9%88%D8%B1%D8%A9%204.jpeg" alt="صورة 4" width="200"/>  <img src="https://raw.githubusercontent.com/moaz-nassef/memory_notes/main/screenshots/%D8%B5%D9%88%D8%B1%D8%A9%205%20.jpeg" alt="صورة 5 " width="200"/>  <img src="https://raw.githubusercontent.com/moaz-nassef/memory_notes/main/screenshots/%D8%B5%D9%88%D8%B1%D8%A9%206%20.jpeg" alt="صورة 6 " width="200"/></p>
